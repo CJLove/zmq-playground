@@ -28,9 +28,7 @@ void recv_multipart_msg(zmq::socket_t *socket, multipart_msg_t *msg)
         }
         std::string msg_txt;
         msg_txt.assign(static_cast<char *>(curr_msg.data()), curr_msg.size());
-
         msg->msgs.push_back(msg_txt);
-        msg->msg_count++;
 
         recvMore = socket->get(zmq::sockopt::rcvmore);
     }

@@ -9,6 +9,7 @@
 #include <thread>
 #include <unistd.h>
 #include <zmq.hpp>
+#include <zmq_addon.hpp>
 
 using namespace std;
 
@@ -112,6 +113,8 @@ int main(int argc, char *argv[]) {
 
     size_t i = 0;
     while (true) {
+#if 0        
+        // Using multipart_msg_t and send_multipart_msg()
         multipart_msg_t msg;
         msg.topic = recvTopic;
 
@@ -119,8 +122,17 @@ int main(int argc, char *argv[]) {
         msg.msgs.push_back(msg_text);
 
         send_multipart_msg(&publisher, &msg);
+#else
+        // Using zmq::multipart_t
+        zmq::multipart_t msg;
+        msg.addstr(recvTopic);
+    
+        std::string msg_text = fmt::format("Hello World! {}",i);
+        msg.addstr(msg_text);
 
-        logger->info("[PUBLISHER]: Sent {} to topic", msg_text);
+        msg.send(publisher);
+#endif        
+        logger->info("[PUBLISHER]: Sent {} to topic {}", msg_text,recvTopic);
 
         // add some delay
         std::this_thread::sleep_for(std::chrono::milliseconds(500));

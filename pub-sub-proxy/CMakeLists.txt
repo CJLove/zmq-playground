@@ -13,3 +13,7 @@ target_link_libraries( zmq_producer zmq Threads::Threads)
 add_executable(zmq_subscriber zmq_subscriber.cpp common.cpp)
 
 target_link_libraries( zmq_subscriber zmq Threads::Threads)
+
+install(TARGETS zmq_proxy DESTINATION bin)
+install(TARGETS zmq_producer DESTINATION bin)
+install(TARGETS zmq_subscriber DESTINATION bin)

@@ -1,0 +1,26 @@
+version: '3.2'
+
+services:
+    zmq_proxy:
+        image: zmq_proxy:latest
+        networks:
+            - zmq
+
+    zmq_subscriber:
+        image: zmq_subscriber:latest
+        networks:
+            - zmq
+#        depends_on:
+#            - zmq_proxy
+        
+    zmq_producer:
+        image: zmq_producer:latest
+        networks:
+            - zmq
+#        depends_on:
+#            - zmq_proxy
+
+networks:
+    zmq:
+
+

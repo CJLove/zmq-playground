@@ -1,4 +1,11 @@
 # build directory
 build
 
+# bin directory for installed binaries
+bin
+
+# executables in Container staging directories
+Containers/zmq_proxy/zmq_proxy
+Containers/zmq_producer/zmq_producer
+Containers/zmq_subscriber/zmq_subscriber
 

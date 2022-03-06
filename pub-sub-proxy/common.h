@@ -17,12 +17,11 @@ const std::string RECEIVE_TOPIC = std::string("\x08\x10\x01", TOPIC_LENGTH);
 const std::string RESPONSE_TOPIC = std::string("\x08\x10\x02", TOPIC_LENGTH);
 const std::string WELCOME_TOPIC = std::string("\xF3\x00\x00", TOPIC_LENGTH);
 
-typedef struct
+struct multipart_msg_t
 {
     std::string topic;
     std::vector<std::string> msgs;
-    int msg_count;
-} multipart_msg_t;
+};
 
 void recv_multipart_msg(zmq::socket_t *socket, multipart_msg_t *msg);
 void send_multipart_msg(zmq::socket_t *socket, multipart_msg_t *msg);
