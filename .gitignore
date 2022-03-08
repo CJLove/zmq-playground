@@ -8,4 +8,6 @@ bin
 Containers/zmq_proxy/zmq_proxy
 Containers/zmq_producer/zmq_producer
 Containers/zmq_subscriber/zmq_subscriber
+Containers/zmq_pub/zmq_pub
+Containers/zmq_sub/zmq_sub
 
