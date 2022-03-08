@@ -6,19 +6,31 @@ services:
         networks:
             - zmq
 
-    zmq_subscriber:
+    zmq_subscriber1:
         image: zmq_subscriber:latest
         networks:
             - zmq
-#        depends_on:
-#            - zmq_proxy
-        
-    zmq_producer:
+        command: /zmq_subscriber -p "tcp://zmq_proxy:9200" -s "tcp://zmq_proxy:9210" -r REQ1 -R RESP1
+  
+    zmq_producer1:
         image: zmq_producer:latest
         networks:
             - zmq
-#        depends_on:
-#            - zmq_proxy
+        command: /zmq_producer -p "tcp://zmq_proxy:9200" -s "tcp://zmq_proxy:9210" -r REQ1 -R RESP1
+
+    zmq_subscriber2:
+        image: zmq_subscriber:latest
+        networks:
+            - zmq
+        command: /zmq_subscriber -p "tcp://zmq_proxy:9200" -s "tcp://zmq_proxy:9210" -r REQ2 -R RESP2
+  
+    zmq_producer2:
+        image: zmq_producer:latest
+        networks:
+            - zmq
+        command: /zmq_producer -p "tcp://zmq_proxy:9200" -s "tcp://zmq_proxy:9210" -r REQ2 -R RESP2
+
+
 
 networks:
     zmq:
