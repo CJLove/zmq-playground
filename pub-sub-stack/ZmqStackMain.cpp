@@ -86,20 +86,34 @@ int main(int argc, char **argv)
 
     if (interactive) {
         std::cout << "Commands:\n"
-            << "    <topic>|msg - send msg to topic\n"
+            << "    <topic1> .. <topicn>|msg - send msg to topic(s)\n"
             << "    sub|<topic> - subscribe to topic\n"
             << "    unsub|<topic> - unsubscribe from topic\n"
-            << "quit - exit\n";
+            << "    quit - exit\n";
         while (true) {
-            std::string cmd;
+            std::string line;
             std::cout << "Cmd >";
-            std::getline(std::cin, cmd);
-            if (cmd == "quit") {
+            std::getline(std::cin, line);
+            if (line == "quit") {
                 break;
             }
-
-
-
+            auto parse = split(line,'|');
+            if (parse.size() == 2) {
+                auto data = parse[1];
+                auto cmds = split(parse[0],' ');
+                if (cmds.size() >= 1) {
+                    if (cmds[0] == "sub") {
+                        logger->info("Subscribing to topic {}",data);
+                        stack.Subscribe(data);
+                    } else if (cmds[0] == "unsub") {
+                        logger->info("Unsubscribing from topic {}",data);
+                        stack.Unsubscribe(data);
+                    } else {
+                        // Treat cmds vector as a set of topics
+                        stack.Publish(cmds,data);
+                    }
+                }
+            }
         }
 
     } else {

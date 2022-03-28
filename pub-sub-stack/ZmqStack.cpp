@@ -31,10 +31,12 @@ void ZmqStack::Unsubscribe(const std::string &topic)
 
 void ZmqStack::Publish(const std::string &topic, const std::string &msg)
 {
+    m_logger->info("Stack {} published message to topic {}",m_name,topic);
     m_publisher.publishMsg(topic,msg);
 }
 
 void ZmqStack::Publish(const std::vector<std::string> &topics, const std::string msg)
 {
+    m_logger->info("Stack {} published message to multiple topics",m_name);
     m_publisher.publishMsg(topics,msg);
 }

@@ -62,7 +62,7 @@ public:
         std::vector<zmq::pollitem_t> p = {{ m_socket, 0, ZMQ_POLLIN, 0}};
 
         while (!m_shutdown) {
-            zmq::poll(p.data(), 1, std::chrono::milliseconds{-1});
+            zmq::poll(p.data(), 1, std::chrono::milliseconds{250});
             if (p[0].revents & ZMQ_POLLIN) {
                 std::vector<zmq::message_t> msgs;
                 auto res = zmq::recv_multipart(m_socket,std::back_inserter(msgs));

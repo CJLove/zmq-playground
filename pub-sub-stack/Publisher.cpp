@@ -14,12 +14,10 @@ void Publisher::publishMsg(const std::string &topic, const std::string &appMsg) 
     std::array<zmq::const_buffer, 2> sendMsgs = {
         zmq::const_buffer(topic.data(), topic.size()),
         zmq::const_buffer(appMsg.data(), appMsg.size())
-    };
+        };
     auto res = zmq::send_multipart(m_socket, sendMsgs);
     if (!res) {
         m_logger->error("Error publishing message to topic {}", topic);
-    } else {
-        m_logger->info("Published message '{}' to topic {}", appMsg, topic);
     }
 }
 
@@ -30,8 +28,6 @@ void Publisher::publishMsg(const std::vector<std::string> &topics, const std::st
         auto res = zmq::send_multipart(m_socket, sendMsgs);
         if (!res) {
             m_logger->error("Error publishing message to topic {}", topic);
-        } else {
-            m_logger->info("Published message '{}' to topic {}", appMsg, topic);
-        }
+        } 
     }
 }
