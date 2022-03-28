@@ -66,6 +66,7 @@ int main(int argc, char *argv[]) {
     zmq::socket_t publisher(context, ZMQ_PUB);
     try {
         // The port number here is the XSUB port of the Msg Proxy service (9200)
+        logger->info("Publisher connecting to {}",pub_transport);
         publisher.connect(pub_transport);
     } catch (zmq::error_t &e) {
         logger->error("Error connection to {}. Error is {}", pub_transport, e.what());
@@ -81,6 +82,7 @@ int main(int argc, char *argv[]) {
     zmq::socket_t subscriber(context, ZMQ_SUB);
     try {
         subscriber.set(zmq::sockopt::subscribe, WELCOME_TOPIC);
+        logger->info("Subscriber connecting to {}",sub_transport);
         subscriber.connect(sub_transport);
         subscriber.set(zmq::sockopt::subscribe, respTopic);
 

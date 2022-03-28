@@ -18,6 +18,7 @@ void usage() {
 
 int main(int argc, char *argv[]) {
     int logLevel = spdlog::level::trace;
+    std::vector<std::string> topics;
     std::string topic = TOPIC;
     std::string subEndpoint = SUB_ENDPOINT;
     int c;
@@ -27,7 +28,7 @@ int main(int argc, char *argv[]) {
                 logLevel = std::stoi(optarg);
                 break;
             case 't':
-                topic = optarg;
+                topics.push_back(std::string(optarg));
                 break;
             case 's':
                 subEndpoint = optarg;
@@ -46,7 +47,9 @@ int main(int argc, char *argv[]) {
     spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
 
     logger->info("SUB Endpoint {}",subEndpoint);
-    logger->info("Using topic {}", topic);
+    for (const auto &topic: topics) {
+        logger->info("Using topic {}", topic);
+    }
 
     // ZMQ Context
     zmq::context_t context(2);
@@ -57,8 +60,10 @@ int main(int argc, char *argv[]) {
     std::string sub_transport(subEndpoint);
     try {
         // The subscriber socket
-        // The port number here is the XSUB port of the Msg Proxy service (9210)
-        subscriber.set(zmq::sockopt::subscribe, topic);
+        // 
+        for (const auto &topic: topics) {
+            subscriber.set(zmq::sockopt::subscribe, topic);
+        }
         subscriber.connect(sub_transport);
 
         // helps with slow connectors!
@@ -81,7 +86,7 @@ int main(int argc, char *argv[]) {
                 recv_multipart_msg(&subscriber, &msg);
 
                 for (auto m : msg.msgs) {
-                    logger->info("[SUBSCRIBER]: Received '{}' on topic {}", m, topic);
+                    logger->info("[SUBSCRIBER]: Received '{}' on topic {}", m, msg.topic);
                 }
 
             }

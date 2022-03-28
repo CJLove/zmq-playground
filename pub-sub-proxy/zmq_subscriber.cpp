@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
     std::string pub_transport(xsubEndpoint);
     try {
         // The port number here is the XSUB port of the Msg Proxy service (9200)
+        logger->info("Publisher connecting to {}",pub_transport);
         publisher.connect(pub_transport);
     } catch (zmq::error_t &e) {
         logger->error("Error connection to {}. Error is {}", pub_transport, e.what());
@@ -79,6 +80,7 @@ int main(int argc, char *argv[]) {
         // The port number here is the XSUB port of the Msg Proxy service (9210)
         subscriber.set(zmq::sockopt::subscribe, WELCOME_TOPIC);
         subscriber.set(zmq::sockopt::subscribe, recvTopic);
+        logger->info("Subscriber connecting to {}",sub_transport);
         subscriber.connect(sub_transport);
 
         // helps with slow connectors!

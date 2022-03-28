@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     zmq::socket_t xpub_socket(context, ZMQ_XPUB);
     std::string xpub_endpoint = fmt::format("tcp://*:{}",xpubPort);
     try {
-        // The port number here is the XSUB port of the Msg Proxy service (9200)
+        // The port number here is the XPUB port of the Msg Proxy service (9200)
         xpub_socket.bind(xpub_endpoint);
         xpub_socket.set(zmq::sockopt::xpub_verbose, 1);
         xpub_socket.set(zmq::sockopt::xpub_welcome_msg, WELCOME_TOPIC);
