@@ -25,18 +25,22 @@ std::vector<std::string> split(const std::string &str, const char delim) {
 int main(int argc, char **argv)
 {
     int logLevel = spdlog::level::trace;
-    std::string endpoint = "inproc://stack-endpoint";
+    std::string pubEndpoint = "inproc://pub-endpoint";
+    std::string subEndpoint = "inproc://sub-endpoint";
     std::string name = "zmqStack";
 
     bool interactive = false;
     int c;
-    while ((c = getopt(argc,argv,"e:l:p:s:P:S:i?")) != EOF) {
+    while ((c = getopt(argc,argv,"l:p:s:P:S:i?")) != EOF) {
         switch (c) {
         case 'l':
             logLevel = std::stoi(optarg);
             break;
-        case 'e':
-            endpoint = optarg;
+        case 'p':
+            pubEndpoint = optarg;
+            break;
+        case 's':
+            subEndpoint = optarg;
             break;
         case 'i':
             interactive = true;
@@ -55,21 +59,22 @@ int main(int argc, char **argv)
     // Set the log level for filtering
     spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
 
-    logger->info("INPROC Endpoint {}",endpoint);
+    logger->info("INPROC Pub Endpoint {}",pubEndpoint);
+    logger->info("INPROC Sub Endpoint {}",subEndpoint);
 
     // ZMQ Context
     zmq::context_t context(0);
 
-    std::thread proxy_thread([&context, endpoint, logger]() {
+    std::thread proxy_thread([&context, pubEndpoint, subEndpoint, logger]() {
         const size_t TOPIC_LENGTH = 3;
         const std::string WELCOME_TOPIC = std::string("\xF3\x00\x00", TOPIC_LENGTH);
 
         // Init XSUB socket
         zmq::socket_t xsub_socket(context, ZMQ_XSUB);
         try {
-            xsub_socket.bind(endpoint);
+            xsub_socket.bind(pubEndpoint);
         } catch (zmq::error_t &e) {
-            logger->error("Error connecting xsub socket to endpoint {}: {}",endpoint,e.what());
+            logger->error("Error connecting xsub socket to endpoint {}: {}",pubEndpoint,e.what());
             exit(1);
         }
 
@@ -77,17 +82,19 @@ int main(int argc, char **argv)
         zmq::socket_t xpub_socket(context, ZMQ_XPUB);
         
         try {
-            xpub_socket.connect(endpoint);
+            xpub_socket.connect(subEndpoint);
             xpub_socket.set(zmq::sockopt::xpub_verbose, 1);
             xpub_socket.set(zmq::sockopt::xpub_welcome_msg, WELCOME_TOPIC);
         } catch (zmq::error_t &e) {
-            logger->error("Error connecting XPUB socket to endpoint {}: {}",endpoint,e.what());
+            logger->error("Error connecting XPUB socket to endpoint {}: {}",subEndpoint,e.what());
             exit(1);
         }
 
         // Create the proxy and let it run with the XPUB and XSUB sockets
         zmq::proxy(xsub_socket, xpub_socket);
     });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     std::vector<std::string> stack1Topics { "topic1", "group" };
     std::vector<std::string> stack2Topics { "topic2", "group" };
@@ -97,10 +104,10 @@ int main(int argc, char **argv)
     //    ZmqStack(const std::string &name, zmq::context_t  &ctx, const std::string &pubEndpoint, const std::string &subEndpoint, const std::vector<std::string> &topics);
 
     std::vector<ZmqStack*> stacks = {
-        new ZmqStack("Stack 0", context, endpoint, endpoint, stack1Topics),
-        new ZmqStack("Stack 1", context, endpoint, endpoint, stack2Topics),
-        new ZmqStack("Stack 2", context, endpoint, endpoint, stack3Topics),
-        new ZmqStack("Stack 3", context, endpoint, endpoint, stack4Topics)
+        new ZmqStack("Stack 0", context, pubEndpoint, subEndpoint, stack1Topics),
+        new ZmqStack("Stack 1", context, pubEndpoint, subEndpoint, stack2Topics),
+        new ZmqStack("Stack 2", context, pubEndpoint, subEndpoint, stack3Topics),
+        new ZmqStack("Stack 3", context, pubEndpoint, subEndpoint, stack4Topics)
     };
 
 
@@ -132,7 +139,11 @@ int main(int argc, char **argv)
                             stacks[stack]->Unsubscribe(data);
                         } else {
                             // Treat cmds vector as a set of topics
-                            stacks[stack]->Publish(cmds,data);
+                            if (cmds.size() == 1) {
+                                stacks[stack]->Publish(cmds[0],data);
+                            } else {
+                                stacks[stack]->Publish(cmds,data);
+                            }
                         }
                     }
                 }
