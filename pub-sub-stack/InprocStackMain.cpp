@@ -72,7 +72,7 @@ int main(int argc, char **argv)
         // Init XSUB socket
         zmq::socket_t xsub_socket(context, ZMQ_XSUB);
         try {
-            xsub_socket.bind(pubEndpoint);
+            xsub_socket.bind(subEndpoint);
         } catch (zmq::error_t &e) {
             logger->error("Error connecting xsub socket to endpoint {}: {}",pubEndpoint,e.what());
             exit(1);
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
         zmq::socket_t xpub_socket(context, ZMQ_XPUB);
         
         try {
-            xpub_socket.connect(subEndpoint);
+            xpub_socket.bind(pubEndpoint);
             xpub_socket.set(zmq::sockopt::xpub_verbose, 1);
             xpub_socket.set(zmq::sockopt::xpub_welcome_msg, WELCOME_TOPIC);
         } catch (zmq::error_t &e) {
@@ -105,9 +105,9 @@ int main(int argc, char **argv)
 
     std::vector<ZmqStack*> stacks = {
         new ZmqStack("Stack 0", context, pubEndpoint, subEndpoint, stack1Topics),
-        new ZmqStack("Stack 1", context, pubEndpoint, subEndpoint, stack2Topics),
-        new ZmqStack("Stack 2", context, pubEndpoint, subEndpoint, stack3Topics),
-        new ZmqStack("Stack 3", context, pubEndpoint, subEndpoint, stack4Topics)
+        new ZmqStack("Stack 1", context, pubEndpoint, subEndpoint, stack2Topics) //,
+//        new ZmqStack("Stack 2", context, pubEndpoint, subEndpoint, stack3Topics),
+//        new ZmqStack("Stack 3", context, pubEndpoint, subEndpoint, stack4Topics)
     };
 
 
