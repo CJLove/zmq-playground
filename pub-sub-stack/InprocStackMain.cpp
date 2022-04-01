@@ -5,6 +5,7 @@
 #include <fmt/core.h>
 #include "zmq.hpp"
 #include "ZmqStack.h"
+#include "Proxy.h"
 
 void usage() 
 {
@@ -27,6 +28,7 @@ int main(int argc, char **argv)
     int logLevel = spdlog::level::trace;
     std::string pubEndpoint = "inproc://pub-endpoint";
     std::string subEndpoint = "inproc://sub-endpoint";
+    std::string ctrlEndpoint = "inproc://ctrl-endpoint";
     std::string name = "zmqStack";
 
     bool interactive = false;
@@ -65,6 +67,8 @@ int main(int argc, char **argv)
     // ZMQ Context
     zmq::context_t context(0);
 
+
+#if 0
     std::thread proxy_thread([&context, pubEndpoint, subEndpoint, logger]() {
         const size_t TOPIC_LENGTH = 3;
         const std::string WELCOME_TOPIC = std::string("\xF3\x00\x00", TOPIC_LENGTH);
@@ -93,6 +97,9 @@ int main(int argc, char **argv)
         // Create the proxy and let it run with the XPUB and XSUB sockets
         zmq::proxy(xsub_socket, xpub_socket);
     });
+#endif
+
+    Proxy proxy(context,pubEndpoint,subEndpoint,ctrlEndpoint);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
@@ -105,9 +112,9 @@ int main(int argc, char **argv)
 
     std::vector<ZmqStack*> stacks = {
         new ZmqStack("Stack 0", context, pubEndpoint, subEndpoint, stack1Topics),
-        new ZmqStack("Stack 1", context, pubEndpoint, subEndpoint, stack2Topics) //,
-//        new ZmqStack("Stack 2", context, pubEndpoint, subEndpoint, stack3Topics),
-//        new ZmqStack("Stack 3", context, pubEndpoint, subEndpoint, stack4Topics)
+        new ZmqStack("Stack 1", context, pubEndpoint, subEndpoint, stack2Topics),
+        new ZmqStack("Stack 2", context, pubEndpoint, subEndpoint, stack3Topics),
+        new ZmqStack("Stack 3", context, pubEndpoint, subEndpoint, stack4Topics)
     };
 
 
@@ -122,6 +129,11 @@ int main(int argc, char **argv)
             std::cout << "Cmd >";
             std::getline(std::cin, line);
             if (line == "quit") {
+                for (auto &stack: stacks) {
+                    stack->Stop();
+                }
+                proxy.Stop();
+                //context.close();
                 break;
             }
             auto parse = split(line,'|');

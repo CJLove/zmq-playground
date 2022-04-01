@@ -11,11 +11,13 @@ class Publisher {
 public:
     Publisher(zmq::context_t &context, const std::string &endpoint);
 
-    ~Publisher() = default;
+    ~Publisher();
 
     void publishMsg(const std::string &topic, const std::string &appMsg);
 
     void publishMsg(const std::vector<std::string> &topics, const std::string &appMsg);
+
+    void Stop();
 
 private:
     zmq::context_t &m_context;

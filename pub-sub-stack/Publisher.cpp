@@ -10,6 +10,10 @@ Publisher::Publisher(zmq::context_t &context, const std::string &endpoint)
     }
 }
 
+Publisher::~Publisher() {
+    Stop();
+}
+
 void Publisher::publishMsg(const std::string &topic, const std::string &appMsg) {
     std::array<zmq::const_buffer, 2> sendMsgs = {
         zmq::const_buffer(topic.data(), topic.size()),
@@ -30,4 +34,8 @@ void Publisher::publishMsg(const std::vector<std::string> &topics, const std::st
             m_logger->error("Error publishing message to topic {}", topic);
         } 
     }
+}
+
+void Publisher::Stop() {
+    m_socket.close();
 }

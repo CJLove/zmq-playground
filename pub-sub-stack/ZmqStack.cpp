@@ -11,7 +11,7 @@ ZmqStack::ZmqStack(const std::string &name, zmq::context_t  &ctx, const std::str
 
 ZmqStack::~ZmqStack()
 {
-    m_subscriber.Stop();
+    Stop();
 }
 
 void ZmqStack::onReceivedMessage(std::vector<zmq::message_t> &msgs)
@@ -39,4 +39,10 @@ void ZmqStack::Publish(const std::vector<std::string> &topics, const std::string
 {
     m_logger->info("Stack {} published message to multiple topics",m_name);
     m_publisher.publishMsg(topics,msg);
+}
+
+void ZmqStack::Stop()
+{
+    m_subscriber.Stop();
+    m_publisher.Stop();
 }

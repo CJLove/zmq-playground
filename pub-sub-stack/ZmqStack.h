@@ -22,6 +22,8 @@ public:
 
     void Publish(const std::vector<std::string> &topics, const std::string msg);
 
+    void Stop();
+
 private:
     std::string m_name;
     Publisher m_publisher;
