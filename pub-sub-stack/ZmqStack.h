@@ -10,9 +10,9 @@ class ZmqStack {
 public:
     ZmqStack(const std::string &name, zmq::context_t  &ctx, const std::string &pubEndpoint, const std::string &subEndpoint, const std::vector<std::string> &topics);
 
-    ~ZmqStack();
+    virtual ~ZmqStack();
 
-    void onReceivedMessage(std::vector<zmq::message_t> &msgs);
+    virtual void onReceivedMessage(std::vector<zmq::message_t> &msgs);
 
     void Subscribe(const std::string &topic);
 
@@ -24,11 +24,14 @@ public:
 
     void Stop();
 
-private:
+protected:
     std::string m_name;
+    
+private:
     Publisher m_publisher;
     Subscriber<ZmqStack> m_subscriber;
 
+protected:
     std::shared_ptr<spdlog::logger> m_logger;
 
 };
