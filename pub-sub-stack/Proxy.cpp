@@ -1,11 +1,12 @@
 #include "Proxy.h"
+#include "zmq_addon.hpp"
 
 Proxy::Proxy(zmq::context_t  &ctx, const std::string &xpubEndpoint, const std::string &xsubEndpoint, const std::string &ctrlEndpoint):
     m_ctx(ctx),
     m_xpubEndpoint(xpubEndpoint),
     m_xsubEndpoint(xsubEndpoint),
     m_ctrlEndpoint(ctrlEndpoint),
-    m_ctrlPub(zmq::socket_t(ctx, zmq::socket_type::pub)),
+    m_ctrlPub(zmq::socket_t(ctx, zmq::socket_type::req)),
     m_logger(spdlog::get("zmq"))
 {
     m_thread = std::thread(&Proxy::Run, this);
@@ -25,6 +26,32 @@ void Proxy::Stop()
     m_ctrlPub.send(zmq::const_buffer{TERMINATE.c_str(),TERMINATE.size()});
 }
 
+void Proxy::Stats(Proxy::ProxyStats &stats)
+{
+    const std::string STATISTICS {"STATISTICS"};
+    const size_t STATISTICS_COUNT {8};
+
+    m_ctrlPub.send(zmq::const_buffer{STATISTICS.c_str(),STATISTICS.size()});
+
+    std::vector<zmq::message_t> msgs;
+    auto res = zmq::recv_multipart(m_ctrlPub, std::back_inserter(msgs));
+    if (!res) {    
+        m_logger->error("Error receiving statistics");
+        return;
+    }
+    if (msgs.size() == STATISTICS_COUNT) {
+        stats.FrontEndRxMsgs  = *msgs[0].data<uint64_t>();
+        stats.FrontEndRxBytes = *msgs[1].data<uint64_t>();
+        stats.FrontEndTxMsgs  = *msgs[2].data<uint64_t>();
+        stats.FrontEndTxBytes = *msgs[3].data<uint64_t>();
+        stats.BackEndRxMsgs   = *msgs[4].data<uint64_t>();
+        stats.BackEndRxBytes  = *msgs[5].data<uint64_t>();
+        stats.BackEndTxMsgs   = *msgs[6].data<uint64_t>();
+        stats.BackEndTxBytes  = *msgs[7].data<uint64_t>();
+    }
+
+}
+
 void Proxy::Run()
 {
     const size_t TOPIC_LENGTH = 3;
@@ -33,7 +60,7 @@ void Proxy::Run()
 
     zmq::socket_t m_xsubSocket(m_ctx, zmq::socket_type::xsub );
     zmq::socket_t m_xpubSocket(m_ctx, zmq::socket_type::xpub );
-    zmq::socket_t m_ctrlSocket(m_ctx, zmq::socket_type::sub );
+    zmq::socket_t m_ctrlSocket(m_ctx, zmq::socket_type::rep );
 
     try {
         m_xsubSocket.bind(m_xsubEndpoint);
@@ -57,7 +84,7 @@ void Proxy::Run()
     }
     try {
         m_ctrlSocket.connect(m_ctrlEndpoint);
-        m_ctrlSocket.set(zmq::sockopt::subscribe,"");
+        //m_ctrlSocket.set(zmq::sockopt::subscribe,"");
 
     }
     catch (zmq::error_t &e) {

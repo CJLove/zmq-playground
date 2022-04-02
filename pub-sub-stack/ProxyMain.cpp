@@ -14,7 +14,7 @@ using namespace std;
 
 void usage() {
     std::cerr << "Usage\n"
-              << "zmq-proxy [-l <logLevel>][-p <XPUB port>][-s <XSUB port>][-c <Ctrl Endpoint>][-t <threads>\n";
+              << "zmq-proxy [-l <logLevel>][-p <XPUB port>][-s <XSUB port>][-c <Ctrl Endpoint>][-t <threads>][-i <statInterval>]\n";
 }
 
 int main(int argc, char *argv[]) {
@@ -23,8 +23,9 @@ int main(int argc, char *argv[]) {
     uint16_t xsubPort = 9210;
     std::string ctrlEndpoint = "inproc://ctrl-endpoint";
     int threads = 2;
+    int statisticsInterval = 60;
     int c;
-    while ((c = getopt(argc, argv, "l:p:s:c:t:?")) != EOF) {
+    while ((c = getopt(argc, argv, "l:p:s:c:t:i:?")) != EOF) {
         switch (c) {
             case 'l':
                 logLevel = std::stoi(optarg);
@@ -40,6 +41,9 @@ int main(int argc, char *argv[]) {
                 break;
             case 't':
                 threads = std::stoi(optarg);
+                break;
+            case 'i':
+                statisticsInterval = std::stoi(optarg);
                 break;
             case '?':
             default:
@@ -65,6 +69,13 @@ int main(int argc, char *argv[]) {
     Proxy proxy(context, xpubEndpoint, xsubEndpoint, ctrlEndpoint);
 
     while (true) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::seconds(statisticsInterval));
+
+        Proxy::ProxyStats stats;
+        proxy.Stats(stats);
+        logger->info("Statistics: FeRxMsgs {} FeRxBytes {} FeTxMsgs {} FeTxBytes {} BeRxMsgs {} BeRxBytes {} BeTxMsgs {} BeTxBytes {}",
+            stats.FrontEndRxMsgs, stats.FrontEndRxBytes, stats.FrontEndTxMsgs, stats.FrontEndTxBytes,
+            stats.BackEndRxMsgs, stats.BackEndRxMsgs, stats.BackEndTxMsgs, stats.BackEndTxBytes);
+
     }
 }

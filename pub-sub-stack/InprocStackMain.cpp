@@ -132,8 +132,7 @@ int main(int argc, char **argv)
                 for (auto &stack: stacks) {
                     stack->Stop();
                 }
-                proxy.Stop();
-                //context.close();
+                // Break out of loop, so the Proxy, ZmqStack and ZMQ context all go out of scope
                 break;
             }
             auto parse = split(line,'|');
