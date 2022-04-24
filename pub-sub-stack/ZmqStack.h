@@ -5,6 +5,7 @@
 #include "Subscriber.h"
 #include <spdlog/logger.h>
 #include <memory>
+#include <set>
 
 class ZmqStack {
 public:
@@ -14,9 +15,13 @@ public:
 
     virtual void onReceivedMessage(std::vector<zmq::message_t> &msgs);
 
+    virtual void onCtrlMessage(std::vector<zmq::message_t> &msgs);
+
     void Subscribe(const std::string &topic);
 
-    void Unsubscribe(const std::string &topic);    
+    void Unsubscribe(const std::string &topic); 
+
+    std::set<std::string> Subscriptions();   
 
     void Publish(const std::string &topic, const std::string &msg);
 
@@ -30,6 +35,7 @@ protected:
 private:
     Publisher m_publisher;
     Subscriber<ZmqStack> m_subscriber;
+    std::set<std::string> m_subscriptions;
 
 protected:
     std::shared_ptr<spdlog::logger> m_logger;

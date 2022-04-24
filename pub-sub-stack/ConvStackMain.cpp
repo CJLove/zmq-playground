@@ -101,6 +101,11 @@ int main(int argc, char **argv)
             if (line == "quit") {
                 break;
             }
+            if (line == "list") {
+                auto subscriptions = stack.Subscriptions();
+                
+                logger->info("Stack {} subscriptions {}",name, fmt::join(subscriptions, " "));
+            }
             auto parse = split(line,'|');
             if (parse.size() == 2) {
                 auto data = parse[1];

@@ -21,6 +21,11 @@ void ConvStack::onReceivedMessage(std::vector<zmq::message_t> &msgs)
     }
 }
 
+void ConvStack::onCtrlMessage(std::vector<zmq::message_t> &msgs)
+{
+    
+}
+
 void ConvStack::AddConversion(const std::string &subTopic, std::vector<std::string> &pubTopics)
 {
     std::lock_guard guard(m_mutex);

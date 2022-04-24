@@ -89,6 +89,7 @@ int main(int argc, char **argv)
             << "    <topic1> .. <topicn>|msg - send msg to topic(s)\n"
             << "    sub|<topic> - subscribe to topic\n"
             << "    unsub|<topic> - unsubscribe from topic\n"
+            << "    list - list subscriptions\n"
             << "    quit - exit\n";
         while (true) {
             std::string line;
@@ -96,6 +97,11 @@ int main(int argc, char **argv)
             std::getline(std::cin, line);
             if (line == "quit") {
                 break;
+            }
+            if (line == "list") {
+                auto subscriptions = stack.Subscriptions();
+                
+                logger->info("Stack {} subscriptions {}",name, fmt::join(subscriptions, " "));
             }
             auto parse = split(line,'|');
             if (parse.size() == 2) {

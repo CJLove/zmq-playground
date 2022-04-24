@@ -33,8 +33,10 @@ public:
     void Run() {
         const size_t TOPIC_LENGTH = 3;
         const std::string WELCOME_TOPIC = std::string("\xF3\x00\x00", TOPIC_LENGTH);
+        const std::string CTRL_TOPIC = std::string("ctrl");
         try {
             m_socket.set(zmq::sockopt::subscribe, WELCOME_TOPIC);
+            m_socket.set(zmq::sockopt::subscribe, CTRL_TOPIC);
             m_socket.set(zmq::sockopt::linger, 0);
             m_logger->info("Subscriber Connecting to {}", m_endpoint);
             m_socket.connect(m_endpoint);
@@ -60,9 +62,12 @@ public:
                     if (!res) {
                         m_logger->error("Error receiving");
                     }
-
                     if (msgs[0].to_string() == WELCOME_TOPIC) {
                         m_logger->info("WELCOME_MSG received");
+                        continue;
+                    }
+                    if (msgs[0].to_string() == CTRL_TOPIC) {
+                        m_target.onCtrlMessage(msgs);
                         continue;
                     }
                     m_target.onReceivedMessage(msgs);

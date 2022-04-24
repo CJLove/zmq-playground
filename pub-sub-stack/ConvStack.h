@@ -13,6 +13,8 @@ public:
 
     virtual void onReceivedMessage(std::vector<zmq::message_t> &msgs) override;
 
+    virtual void onCtrlMessage(std::vector<zmq::message_t> &msgs) override;
+
     void AddConversion(const std::string &subTopic, std::vector<std::string> &pubTopics);
 
     void RemoveConversion(const std::string &subTopic);
