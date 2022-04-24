@@ -1,9 +1,9 @@
 FROM registry.fedoraproject.org/fedora-minimal:34
 
-ADD zmq-proxy /
+ADD zmq-stack /
 
 RUN \
     microdnf install -y zeromq
 
 
-CMD  /zmq-proxy -i
+CMD  /zmq-stack -n stack -p tcp://localhost:9200 -s tcp://localhost:9210
