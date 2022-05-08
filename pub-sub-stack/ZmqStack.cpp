@@ -21,8 +21,10 @@ void ZmqStack::onReceivedMessage(std::vector<zmq::message_t> &msgs)
     m_logger->info("Stack {} received message {} on topic {}", m_name, msgs[1].to_string(), msgs[0].to_string());
 }
 
-void onCtrlMessage(std::vector<zmq::message_t> &msgs)
+void ZmqStack::onCtrlMessage(std::vector<zmq::message_t> &msgs)
 {
+    m_logger->info("Stack {} received ctrl message {} on topic {}", m_name, msgs[1].to_string(), msgs[0].to_string());
+
     // See if CTRL message is addressed to this node then process it
 }
 

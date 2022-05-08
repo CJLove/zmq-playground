@@ -3,13 +3,15 @@
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
 #include <fmt/core.h>
+#include <fstream>
+#include "yaml-cpp/yaml.h"
 #include "zmq.hpp"
 #include "ZmqStack.h"
 
 void usage() 
 {
     std::cerr << "Usage:\n"
-        << "zmqStack -n <name> -p <pubEndpoint> -s <subEndpoint> -P <pub topic> -S <sub topic>\n";
+        << "zmq-stack [-n <name>][-p <pubEndpoint>][-s <subEndpoint>][-P <pub topic>][-S <sub topic>]\n";
 }
 
 std::vector<std::string> split(const std::string &str, const char delim) {
@@ -25,6 +27,7 @@ std::vector<std::string> split(const std::string &str, const char delim) {
 int main(int argc, char **argv)
 {
     int logLevel = spdlog::level::trace;
+    std::string configFile = "zmq-stack.yaml";
     std::string name = "zmqStack";
     std::string pubEndpoint = "tcp://localhost:9200";
     std::string subEndpoint = "tcp://localhost:9210";
@@ -32,8 +35,11 @@ int main(int argc, char **argv)
     std::vector<std::string> pubTopics;
     bool interactive = false;
     int c;
-    while ((c = getopt(argc,argv,"n:l:p:s:P:S:i?")) != EOF) {
+    while ((c = getopt(argc,argv,"f:n:l:p:s:P:S:i?")) != EOF) {
         switch (c) {
+        case 'f':
+            configFile = optarg;
+            break;
         case 'n':
             name = optarg;
             break;
@@ -61,13 +67,50 @@ int main(int argc, char **argv)
             exit(1);
         }
     }
-
     auto logger = spdlog::stdout_logger_mt("zmq");
     // Log format:
     // 2018-10-08 21:08:31.633|020288|I|Thread Worker thread 3 doing something
     logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%t|%L|%v");
     // Set the log level for filtering
     spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
+
+    std::ifstream ifs(configFile);
+    if (ifs.good()) {
+        std::stringstream stream;
+        stream << ifs.rdbuf();
+        try {
+            YAML::Node m_yaml = YAML::Load(stream.str());
+
+            if (m_yaml["name"]) {
+                name = m_yaml["name"].as<std::string>();
+            }
+            if (m_yaml["pub-endpoint"]) {
+                pubEndpoint = m_yaml["pub-endpoint"].as<std::string>();
+            }
+            if (m_yaml["sub-endpoint"]) {
+                subEndpoint = m_yaml["sub-endpoint"].as<std::string>();
+            }
+            if (m_yaml["sub-topics"]) {
+                if (m_yaml["sub-topics"].IsSequence()) {
+                    subTopics = m_yaml["sub-topics"].as<std::vector<std::string>>();
+                }
+            }
+            if (m_yaml["pub-topics"]) {
+                if (m_yaml["pub-topics"].IsSequence()) {
+                    pubTopics = m_yaml["pub-topics"].as<std::vector<std::string>>();
+                }
+            }
+
+        } catch (...) {
+            logger->error("Error parsing config file");        
+        }
+
+
+
+    }
+
+
+
 
     logger->info("XPUB Endpoint {} XSUB Endpoint {}",pubEndpoint,subEndpoint);
     for (const auto &topic: pubTopics) {

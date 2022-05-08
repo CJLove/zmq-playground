@@ -6,4 +6,4 @@ RUN \
     microdnf install -y zeromq
 
 
-CMD  /zmq-proxy -i
+CMD  /zmq-proxy -i 30

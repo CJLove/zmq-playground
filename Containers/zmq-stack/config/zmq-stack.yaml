@@ -1,0 +1,9 @@
+---
+name: stack
+id: cfb5feb0-ce4f-11ec-84fb-b88584a4a6fe
+pub-endpoint: tcp://localhost:9200
+sub-endpoint: tcp://localhost:9210
+sub-topics:
+  - topic1
+pub-topics:
+  - topic2

@@ -46,7 +46,7 @@ zmq-proxy)
     cd ..
     ;;
 zmq-stack)
-    cp ../bin/pub-sub-stack zmq-stack/
+    cp ../bin/zmq-stack zmq-stack/
     cd zmq-stack
     docker build -t zmq-stack:latest -t fir.love.io:3005/zmq-stack:latest .
     docker push fir.love.io:3005/zmq-stack:latest

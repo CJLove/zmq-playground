@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: zmq-proxy
+      labels:
+        app: zmq-proxy
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: zmq-proxy
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 50%
+          maxSurge: 1
+      template:
+        metadata:
+          labels:
+            app: zmq-proxy
+        spec:
+          containers:
+          - name: zmq-proxy
+            image: fir.love.io:3005/zmq-proxy:latest
+            imagePullPolicy: Always
+            ports:
+            - containerPort: 9200
+            - containerPort: 9210
+          nodeSelector:
+            cputype: amd64
+
+

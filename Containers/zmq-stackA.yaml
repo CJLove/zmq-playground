@@ -1,0 +1,43 @@
+
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: zmq-stack-a
+      labels:
+        app: zmq-stack-a
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: zmq-stack-a
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 50%
+          maxSurge: 1
+      template:
+        metadata:
+          labels:
+            app: zmq-stack-a
+        spec:
+          volumes:
+            - name: zmq-stack-a-cfg
+              configMap:
+                name: zmq-stack-a-cfg
+
+          containers:
+          - name: zmq-stack-a
+            image: fir.love.io:3005/zmq-stack:latest
+            imagePullPolicy: Always
+            volumeMounts:
+              - mountPath: /zmq-stack/config
+                name: zmq-stack-a-cfg
+                readOnly: true
+          nodeSelector:
+            cputype: amd64
+
+
