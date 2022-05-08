@@ -3,7 +3,9 @@
 #include <spdlog/spdlog.h>
 #include <fmt/core.h>
 #include "Proxy.h"
+#include "yaml-cpp/yaml.h"
 #include <sstream>
+#include <fstream>
 #include <string.h>
 #include <string>
 #include <thread>
@@ -14,19 +16,23 @@ using namespace std;
 
 void usage() {
     std::cerr << "Usage\n"
-              << "zmq-proxy [-l <logLevel>][-p <XPUB port>][-s <XSUB port>][-c <Ctrl Endpoint>][-t <threads>][-i <statInterval>]\n";
+              << "zmq-proxy [f <configFile>][-l <logLevel>][-p <XPUB port>][-s <XSUB port>][-c <Ctrl Endpoint>][-t <threads>][-i <statInterval>]\n";
 }
 
 int main(int argc, char *argv[]) {
     int logLevel = spdlog::level::trace;
+    std::string configFile = "zmq-proxy.yaml";
     uint16_t xpubPort = 9200;
     uint16_t xsubPort = 9210;
     std::string ctrlEndpoint = "inproc://ctrl-endpoint";
     int threads = 2;
     int statisticsInterval = 60;
     int c;
-    while ((c = getopt(argc, argv, "l:p:s:c:t:i:?")) != EOF) {
+    while ((c = getopt(argc, argv, "f:l:p:s:c:t:i:?")) != EOF) {
         switch (c) {
+            case 'f':
+                configFile = optarg;
+                break;
             case 'l':
                 logLevel = std::stoi(optarg);
                 break;
@@ -53,12 +59,36 @@ int main(int argc, char *argv[]) {
     }
     auto logger = spdlog::stdout_logger_mt("zmq");
     // Log format:
-    // 2018-10-08 21:08:31.633|020288|I|Thread Worker thread 3 doing something
-    logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%t|%L|%v");
+    // 2022-05-07 20:27:55.585|zmq-proxy|3425239|I|XPUB Port 9200 XSUB Port 9210
+    logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|zmq-proxy|%t|%L|%v");
     // Set the log level for filtering
     spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
 
-    logger->info("XPUB Port {} XSUB Port {}", xpubPort, xsubPort);
+    std::ifstream ifs(configFile);
+    if (ifs.good()) {
+        std::stringstream stream;
+        stream << ifs.rdbuf();
+        try {
+            YAML::Node m_yaml = YAML::Load(stream.str());
+
+            if (m_yaml["xpub-port"]) {
+                xpubPort = m_yaml["xpub-port"].as<uint16_t>();
+            }
+            if (m_yaml["xsub-port"]) {
+                xsubPort = m_yaml["xsub-port"].as<uint16_t>();
+            }
+            if (m_yaml["ctrl-endpoint"]) {
+                ctrlEndpoint = m_yaml["ctrl-endpoint"].as<std::string>();
+            }
+            if (m_yaml["threads"]) {
+                threads = m_yaml["threads"].as<int>();
+            }
+        } catch (...) {
+            logger->error("Error parsing config file");        
+        }
+    }    
+
+    logger->info("XPUB Port {} XSUB Port {} Threads {}", xpubPort, xsubPort, threads);
 
     // ZMQ Context
     zmq::context_t context(threads);

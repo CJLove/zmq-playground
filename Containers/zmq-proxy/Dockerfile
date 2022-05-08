@@ -1,9 +1,10 @@
 FROM registry.fedoraproject.org/fedora-minimal:34
 
-ADD zmq-proxy /
+WORKDIR /zmq-proxy
+
+COPY . .
 
 RUN \
     microdnf install -y zeromq
 
-
-CMD  /zmq-proxy -i 30
+CMD  ./zmq-proxy -f ./config/zmq-proxy.yaml

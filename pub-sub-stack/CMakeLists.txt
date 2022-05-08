@@ -11,7 +11,7 @@ add_executable(conv-stack ZmqStack.cpp ConvStack.cpp Publisher.cpp ConvStackMain
 target_link_libraries( conv-stack zmq Threads::Threads yaml-cpp)
 
 add_executable(zmq-proxy Proxy.cpp ProxyMain.cpp )
-target_link_libraries( zmq-proxy zmq Threads::Threads )
+target_link_libraries( zmq-proxy zmq Threads::Threads yaml-cpp)
 
 add_executable(inproc-stack ZmqStack.cpp Publisher.cpp Proxy.cpp InprocStackMain.cpp)
 target_link_libraries( inproc-stack zmq Threads::Threads )

@@ -56,7 +56,7 @@ void Proxy::Run()
 {
     const size_t TOPIC_LENGTH = 3;
     const std::string WELCOME_TOPIC = std::string("\xF3\x00\x00", TOPIC_LENGTH);
-    m_logger->info("Proxy: XPUB {} XSUB {} Ctrl {}",m_xpubEndpoint, m_xsubEndpoint, m_ctrlEndpoint);
+    m_logger->info("XPUB {} XSUB {} Ctrl {}",m_xpubEndpoint, m_xsubEndpoint, m_ctrlEndpoint);
 
     zmq::socket_t m_xsubSocket(m_ctx, zmq::socket_type::xsub );
     zmq::socket_t m_xpubSocket(m_ctx, zmq::socket_type::xpub );

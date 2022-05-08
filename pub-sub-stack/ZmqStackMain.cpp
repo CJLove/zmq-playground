@@ -104,13 +104,11 @@ int main(int argc, char **argv)
         } catch (...) {
             logger->error("Error parsing config file");        
         }
-
-
-
     }
 
-
-
+    // Update logging pattern to reflect the service name
+    auto pattern = fmt::format("%Y-%m-%d %H:%M:%S.%e|{}|%t|%L|%v",name);
+    logger->set_pattern(pattern);
 
     logger->info("XPUB Endpoint {} XSUB Endpoint {}",pubEndpoint,subEndpoint);
     for (const auto &topic: pubTopics) {

@@ -25,7 +25,7 @@ public:
 
     void Publish(const std::string &topic, const std::string &msg);
 
-    void Publish(const std::vector<std::string> &topics, const std::string msg);
+    void Publish(const std::vector<std::string> &topics, const std::string &msg);
 
     void Stop();
 

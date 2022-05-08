@@ -1,0 +1,6 @@
+---
+xpub-port: 9200
+xsub-port: 9210
+control-endpoint: "inproc://ctrl-endpoint"
+threads: 4
+
