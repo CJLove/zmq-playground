@@ -52,11 +52,11 @@ zmq-stack)
     docker push fir.love.io:3005/zmq-stack:latest
     cd ..
     ;;
-zmq-conv)
-    cp ../bin/conv-stack zmq-conv-stack/
-    cd zmq-conv-stack
-    docker build -t zmq-conv-stack:latest -t fir.love.io:3005/zmq-conv-stack:latest .
-    docker push fir.love.io:3005/zmq-conv-stack:latest
+conv-stack)
+    cp ../bin/conv-stack conv-stack/
+    cd conv-stack
+    docker build -t conv-stack:latest -t fir.love.io:3005/conv-stack:latest .
+    docker push fir.love.io:3005/conv-stack:latest
     cd ..
     ;;
 esac

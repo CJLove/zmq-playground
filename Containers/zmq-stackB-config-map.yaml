@@ -10,6 +10,6 @@ data:
     pub-endpoint: tcp://zmq-proxy-service:9200
     sub-endpoint: tcp://zmq-proxy-service:9210
     sub-topics:
-      - topic2
+      - stack-b-egress
     pub-topics:
-      - topic1
+      - stack-b-ingress
