@@ -3,6 +3,7 @@
 #include <spdlog/spdlog.h>
 #include <fmt/core.h>
 #include "Proxy.h"
+#include "HealthStatus.h"
 #include "yaml-cpp/yaml.h"
 #include <sstream>
 #include <fstream>
@@ -24,11 +25,12 @@ int main(int argc, char *argv[]) {
     std::string configFile = "zmq-proxy.yaml";
     uint16_t xpubPort = 9200;
     uint16_t xsubPort = 9210;
+    uint16_t healthStatusPort = 6000;
     std::string ctrlEndpoint = "inproc://ctrl-endpoint";
     int threads = 2;
     int statisticsInterval = 60;
     int c;
-    while ((c = getopt(argc, argv, "f:l:p:s:c:t:i:?")) != EOF) {
+    while ((c = getopt(argc, argv, "f:l:p:s:c:t:h:i:?")) != EOF) {
         switch (c) {
             case 'f':
                 configFile = optarg;
@@ -51,6 +53,9 @@ int main(int argc, char *argv[]) {
             case 'i':
                 statisticsInterval = std::stoi(optarg);
                 break;
+            case 'h':
+                healthStatusPort = static_cast<uint16_t>(std::stoi(optarg));
+                break;
             case '?':
             default:
                 usage();
@@ -71,11 +76,17 @@ int main(int argc, char *argv[]) {
         try {
             YAML::Node m_yaml = YAML::Load(stream.str());
 
+            if (m_yaml["log-level"]) {
+                logLevel = m_yaml["log-level"].as<int>();
+            }
             if (m_yaml["xpub-port"]) {
                 xpubPort = m_yaml["xpub-port"].as<uint16_t>();
             }
             if (m_yaml["xsub-port"]) {
                 xsubPort = m_yaml["xsub-port"].as<uint16_t>();
+            }
+            if (m_yaml["health-port"]) {
+                healthStatusPort = m_yaml["health-port"].as<uint16_t>();
             }
             if (m_yaml["ctrl-endpoint"]) {
                 ctrlEndpoint = m_yaml["ctrl-endpoint"].as<std::string>();
@@ -97,6 +108,7 @@ int main(int argc, char *argv[]) {
     std::string xsubEndpoint = fmt::format("tcp://*:{}",xsubPort);
     std::string xpubEndpoint = fmt::format("tcp://*:{}",xpubPort);
     Proxy proxy(context, xpubEndpoint, xsubEndpoint, ctrlEndpoint);
+    HealthStatus<Proxy> healthStatus(proxy,healthStatusPort);
 
     while (true) {
         std::this_thread::sleep_for(std::chrono::seconds(statisticsInterval));

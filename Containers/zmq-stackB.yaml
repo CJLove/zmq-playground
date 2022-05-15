@@ -33,6 +33,12 @@ items:
           - name: zmq-stack-b
             image: fir.love.io:3005/zmq-stack:latest
             imagePullPolicy: Always
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 6000
+              initialDelaySeconds: 2
+              periodSeconds: 2
             volumeMounts:
               - mountPath: /zmq-stack/config
                 name: zmq-stack-b-cfg

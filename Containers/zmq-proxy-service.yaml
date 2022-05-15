@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: zmq-proxy-service
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: xpub
       protocol: TCP

@@ -2,11 +2,12 @@
 
 ## Proxy
 ```bash
+$ kubectl apply -f zmq-proxy-config-map.yaml
 $ kubectl apply -f zmq-proxy.yaml
 $ kubectl apply -f zmq-proxy-service.yaml
 ```
 
-Note: currently this exposes an external service, which allows zmq apps outside of the K8S cluster to reach the proxy.
+Note: this is a ClusterIP service 
 
 
 

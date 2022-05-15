@@ -3,6 +3,7 @@
 #include "zmq.h"
 #include "Publisher.h"
 #include "Subscriber.h"
+#include "HealthStatus.h"
 #include <spdlog/logger.h>
 #include <memory>
 #include <set>
@@ -29,13 +30,27 @@ public:
 
     void Stop();
 
+    int Health();
+
+    std::string Status();
+
 protected:
+    /**
+     * @brief Service name
+     */
     std::string m_name;
-    
+
+    /**
+     * @brief Statistics
+     */
+    std::atomic<uint64_t> m_rxMessages;
+    std::atomic<uint64_t> m_txMessages;
+    std::set<std::string> m_subscriptions;
+
 private:
     Publisher m_publisher;
     Subscriber<ZmqStack> m_subscriber;
-    std::set<std::string> m_subscriptions;
+    std::mutex m_mutex;
 
 protected:
     std::shared_ptr<spdlog::logger> m_logger;

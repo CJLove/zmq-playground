@@ -19,6 +19,10 @@ public:
 
     void RemoveConversion(const std::string &subTopic);
 
+    int Health();
+
+    std::string Status();
+
 private:
     std::map<std::string, std::vector<std::string> > m_conversionMap;
     std::mutex m_mutex;

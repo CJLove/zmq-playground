@@ -15,6 +15,7 @@ public:
           m_socket(m_context, ZMQ_SUB),
           m_shutdown(false),
           m_endpoint(endpoint),
+          m_count(0),
           m_topics(topics),
           m_target(target),
           m_logger(spdlog::get("zmq")) {
@@ -72,6 +73,7 @@ public:
                     }
                     m_target.onReceivedMessage(msgs);
                 }
+                m_count++;
             } catch (zmq::error_t &e) {
                 m_logger->error("Caught exception {}", e.what());
                 break;
@@ -84,11 +86,14 @@ public:
 
     void Unsubscribe(const std::string &topic) { m_socket.set(zmq::sockopt::unsubscribe, topic); }
 
+    uint32_t Count() const { return m_count; }
+
 private:
     zmq::context_t &m_context;
     zmq::socket_t m_socket;
     std::atomic_bool m_shutdown;
     std::string m_endpoint;
+    std::atomic<uint32_t> m_count;
     std::vector<std::string> m_topics;
 
     T &m_target;

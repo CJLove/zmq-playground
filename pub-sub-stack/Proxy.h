@@ -36,6 +36,12 @@ public:
     void Stats(Proxy::ProxyStats &stats);
 
     void Run();
+
+    int Health();
+
+    std::string Status();
+
+
 private:
     zmq::context_t  &m_ctx;
     std::string m_xpubEndpoint;
@@ -43,5 +49,6 @@ private:
     std::string m_ctrlEndpoint;
     zmq::socket_t m_ctrlPub;
     std::thread m_thread;
+    std::mutex m_mutex;
     std::shared_ptr<spdlog::logger> m_logger;
 };

@@ -1,5 +1,6 @@
 #include "Proxy.h"
 #include "zmq_addon.hpp"
+#include <exception>
 
 Proxy::Proxy(zmq::context_t  &ctx, const std::string &xpubEndpoint, const std::string &xsubEndpoint, const std::string &ctrlEndpoint):
     m_ctx(ctx),
@@ -31,6 +32,7 @@ void Proxy::Stats(Proxy::ProxyStats &stats)
     const std::string STATISTICS {"STATISTICS"};
     const size_t STATISTICS_COUNT {8};
 
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_ctrlPub.send(zmq::const_buffer{STATISTICS.c_str(),STATISTICS.size()});
 
     std::vector<zmq::message_t> msgs;
@@ -50,6 +52,22 @@ void Proxy::Stats(Proxy::ProxyStats &stats)
         stats.BackEndTxBytes  = *msgs[7].data<uint64_t>();
     }
 
+}
+
+int Proxy::Health()
+{
+    // TODO: Detect health of proxy by having internal publisher/subscriber for heartbeat topic
+    return 0;
+}
+
+std::string Proxy::Status()
+{
+    Proxy::ProxyStats stats;
+    Stats(stats);
+
+    auto str = fmt::format("{{ \"frontend-rx-msgs\": {}, \"frontend-tx-msgs\": {}, \"backend-rx-msgs\": {}, \"backend-tx-msgs\": {} }}",
+        stats.FrontEndRxMsgs, stats.FrontEndTxMsgs, stats.BackEndRxMsgs, stats.BackEndTxMsgs);
+    return str;
 }
 
 void Proxy::Run()

@@ -1,6 +1,8 @@
 ---
 xpub-port: 9200
 xsub-port: 9210
+health-port: 6000
+log-level: 0
 control-endpoint: "inproc://ctrl-endpoint"
 threads: 4
 

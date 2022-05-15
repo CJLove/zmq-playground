@@ -60,6 +60,10 @@
         "streambuf": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "csignal": "cpp",
+        "bitset": "cpp",
+        "list": "cpp",
+        "regex": "cpp"
     }
 }

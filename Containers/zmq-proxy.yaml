@@ -23,10 +23,25 @@ items:
           labels:
             app: zmq-proxy
         spec:
+          volumes:
+            - name: zmq-proxy-cfg
+              configMap:
+                name: zmq-proxy-cfg
           containers:
           - name: zmq-proxy
             image: fir.love.io:3005/zmq-proxy:latest
             imagePullPolicy: Always
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 6000
+              initialDelaySeconds: 2
+              periodSeconds: 2
+            volumeMounts:
+              - mountPath: /zmq-proxy/config
+                name: zmq-proxy-cfg
+                readOnly: true
+
             ports:
             - containerPort: 9200
             - containerPort: 9210

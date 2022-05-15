@@ -7,6 +7,7 @@
 #include "yaml-cpp/yaml.h"
 #include "zmq.hpp"
 #include "ZmqStack.h"
+#include "HealthStatus.h"
 
 void usage() 
 {
@@ -31,11 +32,12 @@ int main(int argc, char **argv)
     std::string name = "zmqStack";
     std::string pubEndpoint = "tcp://localhost:9200";
     std::string subEndpoint = "tcp://localhost:9210";
+    uint16_t healthStatusPort = 6000;
     std::vector<std::string> subTopics;
     std::vector<std::string> pubTopics;
     bool interactive = false;
     int c;
-    while ((c = getopt(argc,argv,"f:n:l:p:s:P:S:i?")) != EOF) {
+    while ((c = getopt(argc,argv,"f:n:l:p:s:P:S:h:i?")) != EOF) {
         switch (c) {
         case 'f':
             configFile = optarg;
@@ -61,6 +63,9 @@ int main(int argc, char **argv)
         case 'i':
             interactive = true;
             break;
+        case 'h':
+            healthStatusPort = static_cast<uint16_t>(std::stoul(optarg));
+            break;
         case '?':
         default:
             usage();
@@ -71,8 +76,6 @@ int main(int argc, char **argv)
     // Log format:
     // 2018-10-08 21:08:31.633|020288|I|Thread Worker thread 3 doing something
     logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%t|%L|%v");
-    // Set the log level for filtering
-    spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
 
     std::ifstream ifs(configFile);
     if (ifs.good()) {
@@ -80,7 +83,12 @@ int main(int argc, char **argv)
         stream << ifs.rdbuf();
         try {
             YAML::Node m_yaml = YAML::Load(stream.str());
-
+            if (m_yaml["log-level"]) {
+                logLevel = m_yaml["log-level"].as<int>();
+            }
+            if (m_yaml["health-port"]) {
+                healthStatusPort = m_yaml["health-port"].as<uint16_t>();
+            }
             if (m_yaml["name"]) {
                 name = m_yaml["name"].as<std::string>();
             }
@@ -109,6 +117,8 @@ int main(int argc, char **argv)
     // Update logging pattern to reflect the service name
     auto pattern = fmt::format("%Y-%m-%d %H:%M:%S.%e|{}|%t|%L|%v",name);
     logger->set_pattern(pattern);
+    // Set the log level for filtering
+    spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
 
     logger->info("XPUB Endpoint {} XSUB Endpoint {}",pubEndpoint,subEndpoint);
     for (const auto &topic: pubTopics) {
@@ -121,9 +131,8 @@ int main(int argc, char **argv)
     // ZMQ Context
     zmq::context_t context(2);
 
-    //    ZmqStack(const std::string &name, zmq::context_t  &ctx, const std::string &pubEndpoint, const std::string &subEndpoint, const std::vector<std::string> &topics);
-
     ZmqStack stack(name, context, pubEndpoint, subEndpoint, subTopics);
+    HealthStatus<ZmqStack> healthStatus(stack,healthStatusPort);
 
     if (interactive) {
         std::cout << "Commands:\n"
