@@ -59,5 +59,12 @@ conv-stack)
     docker push fir.love.io:3005/conv-stack:latest
     cd ..
     ;;
+net-stack)
+    cp ../bin/net-stack net-stack/
+    cd net-stack
+    docker build -t net-stack:latest -t fir.love.io:3005/net-stack:latest .
+    docker push fir.love.io:3005/net-stack:latest
+    cd ..
+    ;;
 esac
 

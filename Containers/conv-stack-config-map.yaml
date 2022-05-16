@@ -14,6 +14,10 @@ data:
     sub-topics:
       - stack-a-ingress
       - stack-b-ingress
+      - net-stack-a-ingress
+      - net-stack-b-ingress
     conversions:
       stack-a-ingress: stack-b-egress
       stack-b-ingress: stack-a-egress
+      net-stack-a-ingress: net-stack-b-egress
+      net-stack-b-ingress: net-stack-a-egress

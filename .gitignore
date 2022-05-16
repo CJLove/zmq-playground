@@ -13,4 +13,5 @@ Containers/zmq_sub/zmq_sub
 Containers/zmq-proxy/zmq-proxy
 Containers/zmq-stack/zmq-stack
 Containers/conv-stack/conv-stack
+Containers/net-stack/net-stack
 
