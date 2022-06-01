@@ -4,6 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/common",
+                "${workspaceFolder}/pub-sub-stack",
                 "/usr/local/include"
             ],
             "defines": [],

@@ -6,21 +6,12 @@
 #include "zmq.hpp"
 #include "ZmqStack.h"
 #include "Proxy.h"
+#include "Util.h"
 
 void usage() 
 {
     std::cerr << "Usage:\n"
         << "inprocStack -e <inprocEndpoint>\n";
-}
-
-std::vector<std::string> split(const std::string &str, const char delim) {
-    std::vector<std::string> strings;
-    std::istringstream stream(str);
-    std::string s;
-    while (std::getline(stream, s, delim)) {
-        strings.push_back(s);
-    }
-    return strings;
 }
 
 int main(int argc, char **argv)
@@ -68,36 +59,6 @@ int main(int argc, char **argv)
     zmq::context_t context(0);
 
 
-#if 0
-    std::thread proxy_thread([&context, pubEndpoint, subEndpoint, logger]() {
-        const size_t TOPIC_LENGTH = 3;
-        const std::string WELCOME_TOPIC = std::string("\xF3\x00\x00", TOPIC_LENGTH);
-
-        // Init XSUB socket
-        zmq::socket_t xsub_socket(context, ZMQ_XSUB);
-        try {
-            xsub_socket.bind(subEndpoint);
-        } catch (zmq::error_t &e) {
-            logger->error("Error connecting xsub socket to endpoint {}: {}",pubEndpoint,e.what());
-            exit(1);
-        }
-
-        // Init XPUB socket
-        zmq::socket_t xpub_socket(context, ZMQ_XPUB);
-        
-        try {
-            xpub_socket.bind(pubEndpoint);
-            xpub_socket.set(zmq::sockopt::xpub_verbose, 1);
-            xpub_socket.set(zmq::sockopt::xpub_welcome_msg, WELCOME_TOPIC);
-        } catch (zmq::error_t &e) {
-            logger->error("Error connecting XPUB socket to endpoint {}: {}",subEndpoint,e.what());
-            exit(1);
-        }
-
-        // Create the proxy and let it run with the XPUB and XSUB sockets
-        zmq::proxy(xsub_socket, xpub_socket);
-    });
-#endif
 
     Proxy proxy(context,pubEndpoint,subEndpoint,ctrlEndpoint);
 
@@ -107,8 +68,6 @@ int main(int argc, char **argv)
     std::vector<std::string> stack2Topics { "topic2", "group" };
     std::vector<std::string> stack3Topics { "topic3", "group" };
     std::vector<std::string> stack4Topics { "topic4", "group" };
-
-    //    ZmqStack(const std::string &name, zmq::context_t  &ctx, const std::string &pubEndpoint, const std::string &subEndpoint, const std::vector<std::string> &topics);
 
     std::vector<ZmqStack*> stacks = {
         new ZmqStack("Stack 0", context, pubEndpoint, subEndpoint, stack1Topics),
