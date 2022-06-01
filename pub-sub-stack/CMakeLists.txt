@@ -23,7 +23,7 @@ target_link_libraries( zmq-proxy common zmq Threads::Threads yaml-cpp httplib::h
 add_executable(net-stack NetStack.cpp NetStackMain.cpp)
 target_link_libraries( net-stack common zmq Threads::Threads yaml-cpp httplib::httplib)
 
-add_executable(inproc-stack Proxy.cpp InprocStackMain.cpp)
+add_executable(inproc-stack Proxy.cpp ConvStack.cpp NetStack.cpp InprocStackMain.cpp)
 target_link_libraries( inproc-stack common zmq Threads::Threads )
 
 

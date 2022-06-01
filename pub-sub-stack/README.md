@@ -15,7 +15,10 @@ Stacks are comprized of ZMQ PUB and SUB sockets and can be configured to subscri
 - Uses 'TCP' transport to an XPUB/XSUB proxy.
 
 ## inproc-stack 
-- executable with multiple ZmqStack instances all using 'inproc' transport.  
+- executable with:
+   - 4 ZmqStack instances all using 'inproc' transport,
+   - 2 NetStack instances listening on UDP ports 6000 and 6001, sending to ports 7000 and 7001
+   - a ConvStack routing messages between the NetStack instances. 
 - Supports interactive loop for accepting messages to be published by 1 stack to specific topics
 
 # Control messages

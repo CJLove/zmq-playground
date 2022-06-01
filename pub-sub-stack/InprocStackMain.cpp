@@ -5,6 +5,8 @@
 #include <fmt/core.h>
 #include "zmq.hpp"
 #include "ZmqStack.h"
+#include "NetStack.h"
+#include "ConvStack.h"
 #include "Proxy.h"
 #include "Util.h"
 
@@ -68,14 +70,28 @@ int main(int argc, char **argv)
     std::vector<std::string> stack2Topics { "topic2", "group" };
     std::vector<std::string> stack3Topics { "topic3", "group" };
     std::vector<std::string> stack4Topics { "topic4", "group" };
+    std::vector<std::string> netASubTopics { "net-a-egress" };
+    std::vector<std::string> netAPubTopics { "net-a-ingress" };
+    std::vector<std::string> netBSubTopics { "net-b-egress" };
+    std::vector<std::string> netBPubTopics { "net-b-ingress" };
+    std::map<std::string,std::vector<std::string>> conversions;
+    conversions["net-a-ingress"] = { "net-b-egress" };
+    conversions["net-b-ingress"] = { "net-a-egress" };
+    std::vector<std::string> convTopics = { "net-a-ingress", "net-b-ingress" };
 
     std::vector<ZmqStack*> stacks = {
         new ZmqStack("Stack 0", context, pubEndpoint, subEndpoint, stack1Topics),
         new ZmqStack("Stack 1", context, pubEndpoint, subEndpoint, stack2Topics),
         new ZmqStack("Stack 2", context, pubEndpoint, subEndpoint, stack3Topics),
-        new ZmqStack("Stack 3", context, pubEndpoint, subEndpoint, stack4Topics)
+        new ZmqStack("Stack 3", context, pubEndpoint, subEndpoint, stack4Topics),
+        new NetStack("netA", context, pubEndpoint, subEndpoint, netASubTopics, netAPubTopics, 6000, "127.0.0.1", 7000),
+        new NetStack("netB", context, pubEndpoint, subEndpoint, netBSubTopics, netBPubTopics, 6001, "127.0.0.1", 7001),
+        new ConvStack("conv", context, pubEndpoint, subEndpoint, convTopics, conversions)
     };
 
+    for (const auto &topic: conversions) {
+        logger->info("    Convert topic {} to topics {}", topic.first, fmt::join(topic.second, " "));
+    }
 
     if (interactive) {
         std::cout << "Commands:\n"
