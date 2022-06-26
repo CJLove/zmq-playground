@@ -26,6 +26,10 @@ target_link_libraries( net-stack common zmq Threads::Threads yaml-cpp httplib::h
 add_executable(inproc-stack Proxy.cpp ConvStack.cpp NetStack.cpp InprocStackMain.cpp)
 target_link_libraries( inproc-stack common zmq Threads::Threads )
 
+add_executable(udp-driver UdpDriver.cpp)
+target_link_libraries(udp-driver common zmq Threads::Threads)
+
+
 
 
 
@@ -35,3 +39,4 @@ install(TARGETS zmq-proxy DESTINATION bin)
 install(TARGETS conv-stack DESTINATION bin)
 install(TARGETS net-stack DESTINATION bin)
 install(TARGETS inproc-stack DESTINATION bin)
+install(TARGETS udp-driver DESTINATION bin)
