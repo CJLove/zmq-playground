@@ -20,8 +20,13 @@ items:
           maxSurge: 1
       template:
         metadata:
+          # annotations:
+          #   prometheus.io/path: "/metrics"
+          #   prometheus.io/scrape: "true"
+          #   prometheus.io/port: "6001"
           labels:
             app: zmq-proxy
+            prometheus: "true"
         spec:
           volumes:
             - name: zmq-proxy-cfg
@@ -43,8 +48,12 @@ items:
                 readOnly: true
 
             ports:
-            - containerPort: 9200
-            - containerPort: 9210
+            - name: xsub
+              containerPort: 9200
+            - name: xpub
+              containerPort: 9210
+            - name: metrics
+              containerPort: 6001
           nodeSelector:
             cputype: amd64
 

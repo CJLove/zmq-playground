@@ -1,8 +1,10 @@
-FROM registry.fedoraproject.org/fedora-minimal:34
+FROM registry.fedoraproject.org/fedora-minimal:36
 
 WORKDIR /zmq-proxy
 
-COPY . .
+COPY zmq-proxy /zmq-proxy/
+COPY config/zmq-proxy.yaml /zmq-proxy/config/
+COPY lib* /usr/lib64/
 
 RUN \
     microdnf install -y zeromq

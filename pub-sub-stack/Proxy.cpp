@@ -1,6 +1,9 @@
 #include "Proxy.h"
 #include "zmq_addon.hpp"
 #include <exception>
+#include <prometheus/exposer.h>
+#include <prometheus/registry.h>
+#include <prometheus/counter.h>
 
 Proxy::Proxy(zmq::context_t  &ctx, const std::string &xpubEndpoint, const std::string &xsubEndpoint, const std::string &ctrlEndpoint):
     m_ctx(ctx),

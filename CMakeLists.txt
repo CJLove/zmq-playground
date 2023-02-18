@@ -28,6 +28,8 @@ pkg_search_module(PKG_ZMQ REQUIRED IMPORTED_TARGET libzmq)
 # spdlog library dependency
 find_package(spdlog CONFIG REQUIRED)
 
+find_package(prometheus-cpp CONFIG REQUIRED)
+
 # Threads
 find_package(Threads)
 

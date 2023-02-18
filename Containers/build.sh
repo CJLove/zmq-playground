@@ -40,6 +40,8 @@ zmq_sub)
     ;;
 zmq-proxy)
     cp ../bin/zmq-proxy zmq-proxy/
+    cp /usr/local/lib64/libprometheus-cpp-core.so.1.1 zmq-proxy/
+    cp /usr/local/lib64/libprometheus-cpp-pull.so.1.1 zmq-proxy/
     cd zmq-proxy
     docker build -t zmq-proxy:latest -t fir.love.io:3005/zmq-proxy:latest .
     docker push fir.love.io:3005/zmq-proxy:latest

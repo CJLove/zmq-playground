@@ -15,3 +15,4 @@ Containers/zmq-stack/zmq-stack
 Containers/conv-stack/conv-stack
 Containers/net-stack/net-stack
 
+Containers/*/libprom*

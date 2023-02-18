@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: zmq-proxy
+  labels:
+    app: zmq-proxy
+spec:
+  selector:
+    matchLabels:
+      prometheus: "true"
+  podMetricsEndpoints:
+  - port: metrics
+    path: /metrics
