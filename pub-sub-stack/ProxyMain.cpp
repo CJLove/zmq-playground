@@ -1,3 +1,4 @@
+#include <atomic>
 #include "HealthStatus.h"
 #include "Proxy.h"
 #include "yaml-cpp/yaml.h"
@@ -10,6 +11,7 @@
 #include <prometheus/registry.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
+#include <signal.h>
 #include <sstream>
 #include <string.h>
 #include <string>
@@ -19,6 +21,13 @@
 
 using namespace std;
 using namespace prometheus;
+
+static std::atomic_bool running = true;
+
+void sig_handler(int) {
+    std::cout << "Shutting down container\n";
+    running = false;
+}
 
 void usage() {
     std::cerr << "Usage\n"
@@ -37,6 +46,10 @@ int main(int argc, char *argv[]) {
     int threads = 2;
     int statisticsInterval = 60;
     int c;
+
+    ::signal(SIGINT,&sig_handler);
+    ::signal(SIGTERM,&sig_handler);
+
     while ((c = getopt(argc, argv, "f:l:p:s:c:t:h:m:i:?")) != EOF) {
         switch (c) {
             case 'f':
@@ -152,7 +165,7 @@ int main(int argc, char *argv[]) {
     HealthStatus<Proxy> healthStatus(proxy, healthStatusPort);
 
     int count = 0;
-    while (true) {
+    while (running.load()) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
         Proxy::ProxyStats lastStats;
         Proxy::ProxyStats stats;

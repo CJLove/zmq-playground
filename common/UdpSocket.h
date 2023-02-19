@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <fmt/core.h>
 #include <netinet/in.h>
@@ -261,7 +262,7 @@ private:
                 } else if (FD_ISSET(m_fd, &fds)) {
 
                     std::array<char, MAX_PACKET_SIZE> msg;
-                    ssize_t numOfBytesReceived = recv(m_fd, &msg[0], MAX_PACKET_SIZE, 0);
+                    ssize_t numOfBytesReceived = recv(m_fd, msg.data(), MAX_PACKET_SIZE, 0);
                     if (numOfBytesReceived < 0) {
                         SocketRet ret;
                         ret.m_success = false;

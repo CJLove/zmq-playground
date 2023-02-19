@@ -1,17 +1,19 @@
 #include "ZmqStack.h"
 #include "HealthStatus.h"
 
-ZmqStack::ZmqStack(const std::string &name, zmq::context_t  &ctx, const std::string &pubEndpoint, const std::string &subEndpoint, const std::vector<std::string> &topics):
+using namespace prometheus;
+
+ZmqStack::ZmqStack(const std::string &name, zmq::context_t  &ctx, std::shared_ptr<prometheus::Registry> registry, const std::string &pubEndpoint, const std::string &subEndpoint, const std::vector<std::string> &topics):
     m_name(name),
-    m_rxMessages(0),
-    m_txMessages(0),
-    m_publisher(ctx,subEndpoint),
-    m_subscriber(ctx,pubEndpoint, topics, *this),
-    m_logger(spdlog::get("zmq"))
+    m_publisher(ctx, registry, subEndpoint),
+    m_subscriber(ctx, registry, pubEndpoint, topics, *this),
+    m_logger(spdlog::get("zmq")),
+    m_registry(registry)
 {
     for (const auto &topic: topics) {
         m_subscriptions.insert(topic);
     }
+
 }
 
 ZmqStack::~ZmqStack()
@@ -22,7 +24,6 @@ ZmqStack::~ZmqStack()
 void ZmqStack::onReceivedMessage(std::vector<zmq::message_t> &msgs)
 {
     m_logger->info("Received message {} on topic {}", msgs[1].to_string(), msgs[0].to_string());
-    m_rxMessages++;
 }
 
 void ZmqStack::onCtrlMessage(std::vector<zmq::message_t> &msgs)
@@ -55,14 +56,12 @@ void ZmqStack::Publish(const std::string &topic, const std::string &msg)
 {
     m_logger->info("Published message {} to topic {}",msg,topic);
     m_publisher.publishMsg(topic,msg);
-    m_txMessages++;
 }
 
 void ZmqStack::Publish(const std::vector<std::string> &topics, const std::string &msg)
 {
     m_logger->info("Published message {} to topics {}",msg, fmt::join(topics, " "));
     m_publisher.publishMsg(topics,msg);
-    m_txMessages+= topics.size();
 }
 
 void ZmqStack::Stop()
@@ -80,17 +79,4 @@ int ZmqStack::Health()
     int status = (lastCount != count) ? 0 : 1;
     lastCount = count;
     return status;
-}
-
-std::string ZmqStack::Status()
-{
-    // { "subscriptions": x, "rx-msgs": x, "tx-msgs": x }
-    size_t subCount = 0;
-    { 
-        std::lock_guard<std::mutex> guard(m_mutex);
-        subCount = m_subscriptions.size();
-    }
-    std::string str = fmt::format("{{ \"subscriptions\": {}, \"rx-msgs\": {}, \"tx-msgs\": {} }}", subCount, m_rxMessages, m_txMessages);
-
-    return str;
 }

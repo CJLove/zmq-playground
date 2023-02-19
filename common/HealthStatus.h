@@ -25,11 +25,6 @@ public:
             int health = m_stack.Health();
             res.status = (health == 0) ? HEALTHY : UNHEALTHY_BASE + health;
         });
-        m_svr.Get("/status", [&](const httplib::Request & /*req*/, httplib::Response &res)
-        {
-            std::string status = m_stack.Status();
-            res.set_content(status,"application/json");
-        });
 
         m_thread = std::thread(&HealthStatus::Run, this);
     }

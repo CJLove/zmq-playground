@@ -9,6 +9,7 @@ set (common_SRC
 
 include_directories(
     .
+    ${prometheus-cpp_INCLUDE_DIR}
 )
 
 add_library( common STATIC ${common_SRC})

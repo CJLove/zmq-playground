@@ -28,12 +28,13 @@ pkg_search_module(PKG_ZMQ REQUIRED IMPORTED_TARGET libzmq)
 # spdlog library dependency
 find_package(spdlog CONFIG REQUIRED)
 
+# prometheus-cpp library dependency for exposing metrics
 find_package(prometheus-cpp CONFIG REQUIRED)
 
 # Threads
 find_package(Threads)
 
-add_subdirectory(pub-sub-proxy)
-add_subdirectory(pub-sub)
+#add_subdirectory(pub-sub-proxy)
+#add_subdirectory(pub-sub)
 add_subdirectory(common)
 add_subdirectory(pub-sub-stack)

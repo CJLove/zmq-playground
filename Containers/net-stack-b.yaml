@@ -42,6 +42,7 @@ items:
         metadata:
           labels:
             app: net-stack-b
+            prometheus: "true"
         spec:
           volumes:
             - name: net-stack-b-cfg
@@ -64,6 +65,8 @@ items:
                 readOnly: true
             ports:
             - containerPort: 7000
+            - name: metrics
+              containerPort: 6001
           nodeSelector:
             cputype: amd64
 ---

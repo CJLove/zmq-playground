@@ -5,11 +5,12 @@
 #include <functional>
 #include <atomic>
 #include <spdlog/spdlog.h>
+#include <prometheus/counter.h>
+#include <prometheus/registry.h>
 
-//template <class T>
 class Publisher {
 public:
-    Publisher(zmq::context_t &context, const std::string &endpoint);
+    Publisher(zmq::context_t &context, std::shared_ptr<prometheus::Registry> registry, const std::string &endpoint);
 
     ~Publisher();
 
@@ -25,4 +26,8 @@ private:
     zmq::socket_t m_socket;
 
     std::shared_ptr<spdlog::logger> m_logger;
+
+    prometheus::Family<prometheus::Counter> &m_pubCounter;
+    std::map<std::string, prometheus::Counter*> m_pubCounters;
+
 };

@@ -42,6 +42,7 @@ items:
         metadata:
           labels:
             app: net-stack-a
+            prometheus: "true"
         spec:
           volumes:
             - name: net-stack-a-cfg
@@ -65,6 +66,8 @@ items:
             ports:
             - containerPort: 7000
               protocol: UDP
+            - name: metrics
+              containerPort: 6001
           nodeSelector:
             cputype: amd64
 ---

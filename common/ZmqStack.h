@@ -5,12 +5,14 @@
 #include "Subscriber.h"
 #include "HealthStatus.h"
 #include <spdlog/logger.h>
+#include <prometheus/counter.h>
+#include <prometheus/registry.h>
 #include <memory>
 #include <set>
 
 class ZmqStack {
 public:
-    ZmqStack(const std::string &name, zmq::context_t  &ctx, const std::string &pubEndpoint, const std::string &subEndpoint, const std::vector<std::string> &topics);
+    ZmqStack(const std::string &name, zmq::context_t  &ctx, std::shared_ptr<prometheus::Registry> registry, const std::string &pubEndpoint, const std::string &subEndpoint, const std::vector<std::string> &topics);
 
     virtual ~ZmqStack();
 
@@ -32,8 +34,6 @@ public:
 
     int Health();
 
-    std::string Status();
-
 protected:
     /**
      * @brief Service name
@@ -43,8 +43,6 @@ protected:
     /**
      * @brief Statistics
      */
-    std::atomic<uint64_t> m_rxMessages;
-    std::atomic<uint64_t> m_txMessages;
     std::set<std::string> m_subscriptions;
 
 private:
@@ -54,5 +52,7 @@ private:
 
 protected:
     std::shared_ptr<spdlog::logger> m_logger;
+
+    std::shared_ptr<prometheus::Registry> m_registry;
 
 };

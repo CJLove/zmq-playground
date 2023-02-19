@@ -64,7 +64,8 @@
         "csignal": "cpp",
         "bitset": "cpp",
         "list": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "charconv": "cpp"
     },
     "cmake.configureOnOpen": false
 }

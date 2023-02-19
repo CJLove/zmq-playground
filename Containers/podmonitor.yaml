@@ -1,9 +1,9 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: zmq-proxy
+  name: zmq-services
   labels:
-    app: zmq-proxy
+    app: zmq-services
 spec:
   selector:
     matchLabels:

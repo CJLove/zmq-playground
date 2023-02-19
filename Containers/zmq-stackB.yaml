@@ -23,6 +23,7 @@ items:
         metadata:
           labels:
             app: zmq-stack-b
+            prometheus: "true"
         spec:
           volumes:
             - name: zmq-stack-b-cfg
@@ -43,6 +44,10 @@ items:
               - mountPath: /zmq-stack/config
                 name: zmq-stack-b-cfg
                 readOnly: true
+
+            ports:
+              - name: metrics
+                containerPort: 6001
           nodeSelector:
             cputype: amd64
 

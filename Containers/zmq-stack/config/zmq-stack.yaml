@@ -3,6 +3,7 @@ name: stack
 id: cfb5feb0-ce4f-11ec-84fb-b88584a4a6fe
 log-level: 0
 health-port: 6000
+metrics-port: 6001
 pub-endpoint: tcp://localhost:9200
 sub-endpoint: tcp://localhost:9210
 sub-topics:

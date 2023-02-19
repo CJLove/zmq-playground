@@ -22,6 +22,7 @@ items:
         metadata:
           labels:
             app: conv-stack
+            prometheus: "true"
         spec:
           volumes:
             - name: conv-stack-cfg
@@ -42,6 +43,10 @@ items:
               - mountPath: /conv-stack/config
                 name: conv-stack-cfg
                 readOnly: true
+
+            ports:
+              - name: metrics
+                containerPort: 6001
           nodeSelector:
             cputype: amd64
 

@@ -2,12 +2,14 @@
 
 #include "ZmqStack.h"
 #include <map>
+#include <memory>
 #include <mutex>
 
-class ConvStack: public ZmqStack {
+class ConvStack : public ZmqStack {
 public:
-    ConvStack(const std::string &name, zmq::context_t  &ctx, const std::string &pubEndpoint, const std::string &subEndpoint, 
-              std::vector<std::string> &subTopics, std::map<std::string, std::vector<std::string>> &conversionMap);
+    ConvStack(const std::string &name, zmq::context_t &ctx, std::shared_ptr<prometheus::Registry> registry,
+              std::string &pubEndpoint, const std::string &subEndpoint, std::vector<std::string> &subTopics,
+              std::map<std::string, std::vector<std::string>> &conversionMap);
 
     ~ConvStack() = default;
 
@@ -21,9 +23,7 @@ public:
 
     int Health();
 
-    std::string Status();
-
 private:
-    std::map<std::string, std::vector<std::string> > m_conversionMap;
+    std::map<std::string, std::vector<std::string>> m_conversionMap;
     std::mutex m_mutex;
 };

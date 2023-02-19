@@ -20,10 +20,6 @@ items:
           maxSurge: 1
       template:
         metadata:
-          # annotations:
-          #   prometheus.io/path: "/metrics"
-          #   prometheus.io/scrape: "true"
-          #   prometheus.io/port: "6001"
           labels:
             app: zmq-proxy
             prometheus: "true"

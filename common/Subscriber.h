@@ -5,12 +5,16 @@
 #include <atomic>
 #include <functional>
 #include <spdlog/spdlog.h>
+#include <prometheus/counter.h>
+#include <prometheus/registry.h>
 #include <thread>
+
+using namespace prometheus;
 
 template <class T>
 class Subscriber {
 public:
-    Subscriber(zmq::context_t &ctx, const std::string &endpoint, const std::vector<std::string> &topics, T &target)
+    Subscriber(zmq::context_t &ctx, std::shared_ptr<prometheus::Registry> registry, const std::string &endpoint, const std::vector<std::string> &topics, T &target)
         : m_context(ctx),
           m_socket(m_context, ZMQ_SUB),
           m_shutdown(false),
@@ -18,7 +22,12 @@ public:
           m_count(0),
           m_topics(topics),
           m_target(target),
-          m_logger(spdlog::get("zmq")) {
+          m_logger(spdlog::get("zmq")),
+          m_subCounter(BuildCounter().Name("sub_msgs").Help("Number of subscribed messages").Register(*registry))
+    {
+
+        m_subCounters["total"] = &m_subCounter.Add({{"topic", "all"}}); 
+
         m_thread = std::thread(&Subscriber::Run, this);
     }
 
@@ -71,6 +80,8 @@ public:
                         m_target.onCtrlMessage(msgs);
                         continue;
                     }
+
+                    m_subCounters["total"]->Increment();
                     m_target.onReceivedMessage(msgs);
                 }
                 m_count++;
@@ -98,6 +109,9 @@ private:
 
     T &m_target;
     std::shared_ptr<spdlog::logger> m_logger;
+
+    prometheus::Family<prometheus::Counter> &m_subCounter;
+    std::map<std::string, prometheus::Counter*> m_subCounters;
 
     std::thread m_thread;
 };

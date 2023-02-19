@@ -3,12 +3,17 @@
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
 #include <fmt/core.h>
+#include <prometheus/exposer.h>
+#include <prometheus/info.h>
+#include <prometheus/registry.h>
 #include "zmq.hpp"
 #include "ZmqStack.h"
 #include "NetStack.h"
 #include "ConvStack.h"
 #include "Proxy.h"
 #include "Util.h"
+
+using namespace prometheus;
 
 void usage() 
 {
@@ -23,10 +28,11 @@ int main(int argc, char **argv)
     std::string subEndpoint = "inproc://sub-endpoint";
     std::string ctrlEndpoint = "inproc://ctrl-endpoint";
     std::string name = "zmqStack";
+    uint16_t metricsPort = 6001;
 
     bool interactive = false;
     int c;
-    while ((c = getopt(argc,argv,"l:p:s:P:S:i?")) != EOF) {
+    while ((c = getopt(argc,argv,"l:p:s:P:S:m:i?")) != EOF) {
         switch (c) {
         case 'l':
             logLevel = std::stoi(optarg);
@@ -39,6 +45,9 @@ int main(int argc, char **argv)
             break;
         case 'i':
             interactive = true;
+            break;
+        case 'm':
+            metricsPort = static_cast<uint16_t>(std::stoi(optarg));
             break;
         case '?':
         default:
@@ -56,6 +65,11 @@ int main(int argc, char **argv)
 
     logger->info("INPROC Pub Endpoint {}",pubEndpoint);
     logger->info("INPROC Sub Endpoint {}",subEndpoint);
+
+    std::string exposerEndpoint = fmt::format("0.0.0.0:{}", metricsPort);
+    Exposer exposer{exposerEndpoint};
+
+    auto registry = std::make_shared<Registry>();
 
     // ZMQ Context
     zmq::context_t context(0);
@@ -80,13 +94,13 @@ int main(int argc, char **argv)
     std::vector<std::string> convTopics = { "net-a-ingress", "net-b-ingress" };
 
     std::vector<ZmqStack*> stacks = {
-        new ZmqStack("Stack 0", context, pubEndpoint, subEndpoint, stack1Topics),
-        new ZmqStack("Stack 1", context, pubEndpoint, subEndpoint, stack2Topics),
-        new ZmqStack("Stack 2", context, pubEndpoint, subEndpoint, stack3Topics),
-        new ZmqStack("Stack 3", context, pubEndpoint, subEndpoint, stack4Topics),
-        new NetStack("netA", context, pubEndpoint, subEndpoint, netASubTopics, netAPubTopics, 6000, "127.0.0.1", 7000),
-        new NetStack("netB", context, pubEndpoint, subEndpoint, netBSubTopics, netBPubTopics, 6001, "127.0.0.1", 7001),
-        new ConvStack("conv", context, pubEndpoint, subEndpoint, convTopics, conversions)
+        new ZmqStack("Stack 0", context, registry, pubEndpoint, subEndpoint, stack1Topics),
+        new ZmqStack("Stack 1", context, registry, pubEndpoint, subEndpoint, stack2Topics),
+        new ZmqStack("Stack 2", context, registry, pubEndpoint, subEndpoint, stack3Topics),
+        new ZmqStack("Stack 3", context, registry, pubEndpoint, subEndpoint, stack4Topics),
+        new NetStack("netA", context, registry, pubEndpoint, subEndpoint, netASubTopics, netAPubTopics, 6000, "127.0.0.1", 7000),
+        new NetStack("netB", context, registry, pubEndpoint, subEndpoint, netBSubTopics, netBPubTopics, 6001, "127.0.0.1", 7001),
+        new ConvStack("conv", context, registry, pubEndpoint, subEndpoint, convTopics, conversions)
     };
 
     for (const auto &topic: conversions) {
