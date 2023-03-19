@@ -1,0 +1,123 @@
+---
+# XPUB service
+apiVersion: v1
+kind: Service
+metadata:
+  name: zmq-xsub-proxy
+  namespace: zmq-test
+  labels:
+    app: zmq-proxy
+spec:
+  ports:
+  - port: 8201
+    name: xsub
+    protocol: TCP
+  clusterIP: None
+  selector:
+    app: zmq-proxy
+---
+# XPUB service-0
+apiVersion: v1
+kind: Service
+metadata:
+  name: zmq-xpub-proxy-0
+  namespace: zmq-test
+  labels:
+    statefulset.kubernetes.io/pod-name: zmq-proxy-0
+spec:
+  ports:
+  - port: 8200
+    name: xpub
+    protocol: TCP
+  clusterIP: None
+  selector:
+    statefulset.kubernetes.io/pod-name: zmq-proxy-0
+---
+# XPUB service-1
+apiVersion: v1
+kind: Service
+metadata:
+  name: zmq-xpub-proxy-1
+  namespace: zmq-test
+  labels:
+    statefulset.kubernetes.io/pod-name: zmq-proxy-1
+spec:
+  ports:
+  - port: 8200
+    name: xpub
+    protocol: TCP
+  clusterIP: None
+  selector:
+    statefulset.kubernetes.io/pod-name: zmq-proxy-1
+---
+# XPUB service-2
+apiVersion: v1
+kind: Service
+metadata:
+  name: zmq-xpub-proxy-2
+  namespace: zmq-test
+  labels:
+    statefulset.kubernetes.io/pod-name: zmq-proxy-2
+spec:
+  ports:
+  - port: 8200
+    name: xpub
+    protocol: TCP
+  clusterIP: None
+  selector:
+    statefulset.kubernetes.io/pod-name: zmq-proxy-2
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zmq-proxy-cfg
+  namespace: zmq-test
+data:
+  zmq-proxy.yaml: |
+    xpub-port: 8200
+    xsub-port: 8201
+    health-port: 6000
+    log-level: 0
+    control-endpoint: "inproc://ctrl-endpoint"
+    threads: 2
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zmq-proxy
+  namespace: zmq-test
+spec:
+  selector:
+    matchLabels:
+      app: zmq-proxy # has to match .spec.template.metadata.labels
+  serviceName: "zmq-xsub-proxy"
+  replicas: 3 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: zmq-proxy # has to match .spec.selector.matchLabels
+        prometheus: "true"
+
+    spec:
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: zmq-proxy-cfg
+          configMap:
+            name: zmq-proxy-cfg
+      containers:
+      - name: zmq-proxy
+        image: fir.love.io:3005/zmq-proxy:latest
+        ports:
+        - name: xpub
+          containerPort: 8200
+        - name: xsub
+          containerPort: 8201
+        - name: metrics
+          containerPort: 6001
+        volumeMounts:
+        - mountPath: /zmq-proxy/config
+          name: zmq-proxy-cfg
+          readOnly: true
+      nodeSelector:
+        cputype: amd64

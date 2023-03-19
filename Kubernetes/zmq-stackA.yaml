@@ -1,0 +1,75 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zmq-stack-a-cfg
+  namespace: zmq-test
+data:
+  zmq-stack.yaml: |
+    name: stackA
+    id: cfb5feb0-ce4f-11ec-84fb-b88584a4a6fe
+    log-level: 0
+    health-port: 6000
+    pub-endpoints: 
+      - tcp://zmq-xpub-proxy-0:8200
+      - tcp://zmq-xpub-proxy-1:8200
+      - tcp://zmq-xpub-proxy-2:8200
+    sub-endpoint: tcp://zmq-xsub-proxy:8201
+    sub-topics:
+      - stack-a-egress
+    pub-topics:
+      - stack-a-ingress
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: zmq-stack-a
+      namespace: zmq-test
+      labels:
+        app: zmq-stack-a
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: zmq-stack-a
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 50%
+          maxSurge: 1
+      template:
+        metadata:
+          labels:
+            app: zmq-stack-a
+            prometheus: "true"
+        spec:
+          volumes:
+            - name: zmq-stack-a-cfg
+              configMap:
+                name: zmq-stack-a-cfg
+
+          containers:
+          - name: zmq-stack-a
+            image: fir.love.io:3005/zmq-stack:latest
+            imagePullPolicy: Always
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 6000
+              initialDelaySeconds: 2
+              periodSeconds: 2
+            volumeMounts:
+              - mountPath: /zmq-stack/config
+                name: zmq-stack-a-cfg
+                readOnly: true
+
+            ports:
+              - name: metrics
+                containerPort: 6001
+          nodeSelector:
+            cputype: amd64
+
+
