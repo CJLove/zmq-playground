@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
     int logLevel = spdlog::level::trace;
     std::string configFile = "zmq-stack.yaml";
     std::string name = "zmqStack";
-    std::string pubEndpoint = "tcp://localhost:9200";
+    std::vector<std::string> pubEndpoints;
     std::string subEndpoint = "tcp://localhost:9210";
     uint16_t healthStatusPort = 6000;
     uint16_t metricsPort = 6001;
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
                 logLevel = std::stoi(optarg);
                 break;
             case 'p':
-                pubEndpoint = optarg;
+                pubEndpoints.push_back(optarg);
                 break;
             case 's':
                 subEndpoint = optarg;
@@ -114,8 +114,8 @@ int main(int argc, char **argv) {
             if (m_yaml["name"]) {
                 name = m_yaml["name"].as<std::string>();
             }
-            if (m_yaml["pub-endpoint"]) {
-                pubEndpoint = m_yaml["pub-endpoint"].as<std::string>();
+            if (m_yaml["pub-endpoints"]) {
+                pubEndpoints = m_yaml["pub-endpoints"].as<std::vector<std::string>>();
             }
             if (m_yaml["sub-endpoint"]) {
                 subEndpoint = m_yaml["sub-endpoint"].as<std::string>();
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
     // Set the log level for filtering
     spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
 
-    logger->info("XPUB Endpoint {} XSUB Endpoint {}", pubEndpoint, subEndpoint);
+    logger->info("XPUB Endpoint {} XSUB Endpoint {}", fmt::join(pubEndpoints, ","), subEndpoint);
     for (const auto &topic : pubTopics) {
         logger->info("    Pub topic {}", topic);
     }
@@ -158,10 +158,37 @@ int main(int argc, char **argv) {
     // ZMQ Context
     zmq::context_t context(2);
 
-    ZmqStack stack(name, context, registry, pubEndpoint, subEndpoint, subTopics);
+    ZmqStack stack(name, context, registry, pubEndpoints, subEndpoint, subTopics);
     HealthStatus<ZmqStack> healthStatus(stack, healthStatusPort);
 
     exposer.RegisterCollectable(registry);
+
+#if 1
+    struct A {
+        int a;
+        int b;
+    };
+    struct B {
+        int a;
+        int b;
+        int c;
+        int d;
+    };
+    A a { 1,2 };
+    B b { 1,2,3,4};
+
+    //zmq::message_t msgA(&a,sizeof(A));
+    //zmq::message_t msgB(&b,sizeof(B));
+
+    //std::vector<zmq::message_t> v { zmq::message_t(&a,sizeof(A)), zmq::message_t(&b,sizeof(B))};
+
+    std::vector<zmq::message_t> v;
+    v.resize(2);
+    v.emplace_back(&a,sizeof(A));
+
+    v.emplace_back(&b,sizeof(B));
+
+#endif
 
     if (interactive) {
         std::cout << "Commands:\n"

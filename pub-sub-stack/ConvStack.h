@@ -8,7 +8,7 @@
 class ConvStack : public ZmqStack {
 public:
     ConvStack(const std::string &name, zmq::context_t &ctx, std::shared_ptr<prometheus::Registry> registry,
-              std::string &pubEndpoint, const std::string &subEndpoint, std::vector<std::string> &subTopics,
+              std::vector<std::string> &pubEndpoints, const std::string &subEndpoint, std::vector<std::string> &subTopics,
               std::map<std::string, std::vector<std::string>> &conversionMap);
 
     ~ConvStack() = default;

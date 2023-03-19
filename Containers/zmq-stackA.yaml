@@ -1,4 +1,21 @@
-
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zmq-stack-a-cfg
+data:
+  zmq-stack.yaml: |
+    name: stackA
+    id: cfb5feb0-ce4f-11ec-84fb-b88584a4a6fe
+    log-level: 0
+    health-port: 6000
+    pub-endpoints: 
+      - tcp://zmq-proxy-service:9200
+    sub-endpoint: tcp://zmq-proxy-service:9210
+    sub-topics:
+      - stack-a-egress
+    pub-topics:
+      - stack-a-ingress
 ---
 apiVersion: v1
 kind: List

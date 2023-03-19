@@ -12,7 +12,7 @@
 
 class ZmqStack {
 public:
-    ZmqStack(const std::string &name, zmq::context_t  &ctx, std::shared_ptr<prometheus::Registry> registry, const std::string &pubEndpoint, const std::string &subEndpoint, const std::vector<std::string> &topics);
+    ZmqStack(const std::string &name, zmq::context_t  &ctx, std::shared_ptr<prometheus::Registry> registry, const std::vector<std::string> &pubEndpoints, const std::string &subEndpoint, const std::vector<std::string> &topics);
 
     virtual ~ZmqStack();
 

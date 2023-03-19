@@ -14,11 +14,11 @@ using namespace prometheus;
 template <class T>
 class Subscriber {
 public:
-    Subscriber(zmq::context_t &ctx, std::shared_ptr<prometheus::Registry> registry, const std::string &endpoint, const std::vector<std::string> &topics, T &target)
+    Subscriber(zmq::context_t &ctx, std::shared_ptr<prometheus::Registry> registry, const std::vector<std::string> &endpoints, const std::vector<std::string> &topics, T &target)
         : m_context(ctx),
           m_socket(m_context, ZMQ_SUB),
           m_shutdown(false),
-          m_endpoint(endpoint),
+          m_endpoints(endpoints),
           m_count(0),
           m_topics(topics),
           m_target(target),
@@ -48,8 +48,10 @@ public:
             m_socket.set(zmq::sockopt::subscribe, WELCOME_TOPIC);
             m_socket.set(zmq::sockopt::subscribe, CTRL_TOPIC);
             m_socket.set(zmq::sockopt::linger, 0);
-            m_logger->info("Subscriber Connecting to {}", m_endpoint);
-            m_socket.connect(m_endpoint);
+            m_logger->info("Subscriber Connecting to {}", fmt::join(m_endpoints,", "));
+            for (const auto &endpoint: m_endpoints) {
+                m_socket.connect(endpoint);
+            }
 
             for (const auto &topic : m_topics) {
                 m_socket.set(zmq::sockopt::subscribe, topic);
@@ -58,7 +60,7 @@ public:
 
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         } catch (zmq::error_t &e) {
-            m_logger->error("Error connecting to {}. Error is {}", m_endpoint, e.what());
+            m_logger->error("Error connecting to {}. Error is {}", fmt::join(m_endpoints,", "), e.what());
         }
 
         std::vector<zmq::pollitem_t> p = {{m_socket, 0, ZMQ_POLLIN, 0}};
@@ -103,7 +105,7 @@ private:
     zmq::context_t &m_context;
     zmq::socket_t m_socket;
     std::atomic_bool m_shutdown;
-    std::string m_endpoint;
+    std::vector<std::string> m_endpoints;
     std::atomic<uint32_t> m_count;
     std::vector<std::string> m_topics;
 

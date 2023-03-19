@@ -3,10 +3,10 @@
 
 using namespace prometheus;
 
-ZmqStack::ZmqStack(const std::string &name, zmq::context_t  &ctx, std::shared_ptr<prometheus::Registry> registry, const std::string &pubEndpoint, const std::string &subEndpoint, const std::vector<std::string> &topics):
+ZmqStack::ZmqStack(const std::string &name, zmq::context_t  &ctx, std::shared_ptr<prometheus::Registry> registry, const std::vector<std::string> &pubEndpoints, const std::string &subEndpoint, const std::vector<std::string> &topics):
     m_name(name),
     m_publisher(ctx, registry, subEndpoint),
-    m_subscriber(ctx, registry, pubEndpoint, topics, *this),
+    m_subscriber(ctx, registry, pubEndpoints, topics, *this),
     m_logger(spdlog::get("zmq")),
     m_registry(registry)
 {

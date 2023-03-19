@@ -2,9 +2,9 @@
 #include <fmt/format.h>
 
 ConvStack::ConvStack(const std::string &name, zmq::context_t &ctx, std::shared_ptr<prometheus::Registry> registry,
-              std::string &pubEndpoint, const std::string &subEndpoint, std::vector<std::string> &subTopics,
+              std::vector<std::string> &pubEndpoints, const std::string &subEndpoint, std::vector<std::string> &subTopics,
               std::map<std::string, std::vector<std::string>> &conversionMap)
-    : ZmqStack(name, ctx, registry, pubEndpoint, subEndpoint, subTopics), m_conversionMap(conversionMap) {}
+    : ZmqStack(name, ctx, registry, pubEndpoints, subEndpoint, subTopics), m_conversionMap(conversionMap) {}
 
 void ConvStack::onReceivedMessage(std::vector<zmq::message_t> &msgs) {
     std::lock_guard guard(m_mutex);

@@ -35,6 +35,7 @@ int main(int argc, char **argv) {
     int logLevel = spdlog::level::trace;
     std::string configFile = "net-stack.yaml";
     std::string name = "netStack";
+    std::vector<std::string> pubEndpoints;
     std::string pubEndpoint = "tcp://localhost:9200";
     std::string subEndpoint = "tcp://localhost:9210";
     std::vector<std::string> subTopics;
@@ -61,6 +62,7 @@ int main(int argc, char **argv) {
                 logLevel = std::stoi(optarg);
                 break;
             case 'p':
+                pubEndpoints.push_back(optarg);
                 pubEndpoint = optarg;
                 break;
             case 's':
@@ -126,8 +128,8 @@ int main(int argc, char **argv) {
             if (m_yaml["name"]) {
                 name = m_yaml["name"].as<std::string>();
             }
-            if (m_yaml["pub-endpoint"]) {
-                pubEndpoint = m_yaml["pub-endpoint"].as<std::string>();
+            if (m_yaml["pub-endpoints"]) {
+                pubEndpoints = m_yaml["pub-endpoints"].as<std::vector<std::string>>();
             }
             if (m_yaml["sub-endpoint"]) {
                 subEndpoint = m_yaml["sub-endpoint"].as<std::string>();
@@ -154,7 +156,7 @@ int main(int argc, char **argv) {
     // Set the log level for filtering
     spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
 
-    logger->info("XPUB Endpoint {} XSUB Endpoint {}", pubEndpoint, subEndpoint);
+    logger->info("XPUB Endpoint {} XSUB Endpoint {}", fmt::join(pubEndpoints, ","), subEndpoint);
     for (const auto &topic : pubTopics) {
         logger->info("    Pub topic {}", topic);
     }
@@ -170,7 +172,7 @@ int main(int argc, char **argv) {
     // ZMQ Context
     zmq::context_t context(2);
 
-    NetStack stack(name, context, registry, pubEndpoint, subEndpoint, subTopics, pubTopics, listenPort, destIp, destPort);
+    NetStack stack(name, context, registry, pubEndpoints, subEndpoint, subTopics, pubTopics, listenPort, destIp, destPort);
     HealthStatus<NetStack> healthStatus(stack, healthStatusPort);
 
     exposer.RegisterCollectable(registry);

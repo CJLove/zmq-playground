@@ -9,7 +9,8 @@ data:
     id: cfb5feb0-ce4f-11ec-84fb-b88584a4a6fe
     log-level: 0
     health-port: 6000
-    pub-endpoint: tcp://zmq-proxy-service:9200
+    pub-endpoints: 
+      - tcp://zmq-proxy-service:9200
     sub-endpoint: tcp://zmq-proxy-service:9210
     sub-topics:
       - net-stack-b-egress

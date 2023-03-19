@@ -1,4 +1,21 @@
-
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zmq-stack-b-cfg
+data:
+  zmq-stack.yaml: |
+    name: stackB
+    id: cfb5feb0-ce4f-11ec-84fb-b88584a4a6ff
+    log-level: 0
+    health-port: 6000
+    pub-endpoints: 
+      - tcp://zmq-proxy-service:9200
+    sub-endpoint: tcp://zmq-proxy-service:9210
+    sub-topics:
+      - stack-b-egress
+    pub-topics:
+      - stack-b-ingress
 ---
 apiVersion: v1
 kind: List
