@@ -1,8 +1,9 @@
-#include <atomic>
 #include "HealthStatus.h"
+#include "Util.h"
 #include "ZmqStack.h"
 #include "yaml-cpp/yaml.h"
 #include "zmq.hpp"
+#include <atomic>
 #include <fmt/core.h>
 #include <fstream>
 #include <iostream>
@@ -27,16 +28,6 @@ void usage() {
               << "zmq-stack [-n <name>][-p <pubEndpoint>][-s <subEndpoint>][-P <pub topic>][-S <sub topic>]\n";
 }
 
-std::vector<std::string> split(const std::string &str, const char delim) {
-    std::vector<std::string> strings;
-    std::istringstream stream(str);
-    std::string s;
-    while (std::getline(stream, s, delim)) {
-        strings.push_back(s);
-    }
-    return strings;
-}
-
 int main(int argc, char **argv) {
     int logLevel = spdlog::level::trace;
     std::string configFile = "zmq-stack.yaml";
@@ -50,8 +41,10 @@ int main(int argc, char **argv) {
     bool interactive = false;
     int c;
 
-    ::signal(SIGINT,&sig_handler);
-    ::signal(SIGTERM,&sig_handler);
+    uint32_t instance = getContainerInstance();
+
+    ::signal(SIGINT, &sig_handler);
+    ::signal(SIGTERM, &sig_handler);
 
     while ((c = getopt(argc, argv, "f:n:l:p:s:P:S:h:m:i?")) != EOF) {
         switch (c) {
@@ -136,6 +129,13 @@ int main(int argc, char **argv) {
         }
     }
 
+    name = fmt::format("{}-{}", name, instance);
+    // Formulate uuid incorporating instance number
+
+    // Adjust pub and sub topics
+    pubTopics = {fmt::format("{}-ingress", name)};
+    subTopics = {fmt::format("{}-egress", name)};
+
     // Update logging pattern to reflect the service name
     auto pattern = fmt::format("%Y-%m-%d %H:%M:%S.%e|{}|%t|%L|%v", name);
     logger->set_pattern(pattern);
@@ -162,33 +162,6 @@ int main(int argc, char **argv) {
     HealthStatus<ZmqStack> healthStatus(stack, healthStatusPort);
 
     exposer.RegisterCollectable(registry);
-
-#if 1
-    struct A {
-        int a;
-        int b;
-    };
-    struct B {
-        int a;
-        int b;
-        int c;
-        int d;
-    };
-    A a { 1,2 };
-    B b { 1,2,3,4};
-
-    //zmq::message_t msgA(&a,sizeof(A));
-    //zmq::message_t msgB(&b,sizeof(B));
-
-    //std::vector<zmq::message_t> v { zmq::message_t(&a,sizeof(A)), zmq::message_t(&b,sizeof(B))};
-
-    std::vector<zmq::message_t> v;
-    v.resize(2);
-    v.emplace_back(&a,sizeof(A));
-
-    v.emplace_back(&b,sizeof(B));
-
-#endif
 
     if (interactive) {
         std::cout << "Commands:\n"

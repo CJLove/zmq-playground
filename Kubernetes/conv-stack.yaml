@@ -18,11 +18,19 @@ data:
     sub-topics:
       - stack-a-ingress
       - stack-b-ingress
+      - zmqStack-0-ingress
+      - zmqStack-1-ingress
+      - zmqStack-2-ingress
+      - zmqStack-3-ingress
       - net-stack-a-ingress
       - net-stack-b-ingress
     conversions:
       stack-a-ingress: stack-b-egress
       stack-b-ingress: stack-a-egress
+      zmqStack-0-ingress: zmqStack-1-egress
+      zmqStack-1-ingress: zmqStack-2-egress
+      zmqStack-2-ingress: zmqStack-3-egress
+      zmqStack-3-ingress: zmqStack-0-egress
       net-stack-a-ingress: net-stack-b-egress
       net-stack-b-ingress: net-stack-a-egress
 ---
