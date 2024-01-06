@@ -14,4 +14,4 @@ include_directories(
 
 add_library( common STATIC ${common_SRC})
 
-target_link_libraries( common zmq Threads::Threads )
+target_link_libraries( common Threads::Threads )

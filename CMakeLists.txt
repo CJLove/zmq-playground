@@ -21,9 +21,14 @@ endif()
 # fmt library dependency
 find_package(fmt CONFIG REQUIRED)
 
-# zmq library dependency
-find_package(PkgConfig REQUIRED)
-pkg_search_module(PKG_ZMQ REQUIRED IMPORTED_TARGET libzmq)
+# zmq library dependency for ZeroMQ built from source with CMake support
+find_package(ZeroMQ REQUIRED)
+
+# When cross-compiling for aarch64 there is an issue finding libsodium.so needed by libzmq.so
+set (SODIUM_LIB "")
+if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
+    set (SODIUM_LIB "/home/love/aarch64/usr/lib64/libsodium.so")
+endif()
 
 # spdlog library dependency
 find_package(spdlog CONFIG REQUIRED)
@@ -31,10 +36,32 @@ find_package(spdlog CONFIG REQUIRED)
 # prometheus-cpp library dependency for exposing metrics
 find_package(prometheus-cpp CONFIG REQUIRED)
 
+# yaml-cpp library dependency
+find_package(yaml-cpp 0.6.2 REQUIRED)
+
+# httplib library dependency
+find_package(httplib REQUIRED)
+
 # Threads
 find_package(Threads)
 
-#add_subdirectory(pub-sub-proxy)
-#add_subdirectory(pub-sub)
+message("Building for ${CMAKE_SYSTEM_PROCESSOR}")
+message("Installing to ${CMAKE_INSTALL_PREFIX}")
+
+# Build the bin path for the install target by mapping CMAKE_SYSTEM_PROCESSOR
+# (x86_64 or aarch64) to the docker builx TARGETPLATFORM (linux/amd64 or
+# linux/arm64)
+if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+    set(BIN_PATH "linux/amd64")
+elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
+    set(BIN_PATH "linux/arm64")
+endif()
+
 add_subdirectory(common)
-add_subdirectory(pub-sub-stack)
+add_subdirectory(zmq-proxy)
+add_subdirectory(zmq-stack)
+add_subdirectory(net-stack)
+add_subdirectory(conv-stack)
+add_subdirectory(inproc-stack)
+add_subdirectory(udp-driver)
+# add_subdirectory(pub-sub-stack)

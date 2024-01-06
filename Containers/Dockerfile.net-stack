@@ -1,0 +1,14 @@
+FROM registry.fedoraproject.org/fedora-minimal:39
+
+ARG TARGETPLATFORM
+
+WORKDIR /net-stack
+
+COPY bin/$TARGETPLATFORM/net-stack .
+ADD config/net-stack.yaml ./config/
+
+RUN \
+    microdnf install -y zeromq
+
+
+CMD  ./net-stack -f ./config/net-stack.yaml

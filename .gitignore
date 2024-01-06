@@ -1,8 +1,14 @@
 # build directory
 build
+build_aarch64
 
-# bin directory for installed binaries
-bin
+# x86_64 and aarch64 executables for each service
+conv-stack/bin/linux
+inproc-stack/bin/linux
+net-stack/bin/linux
+udp-driver/bin/linux
+zmq-proxy/bin/linux
+zmq-stack/bin/linux
 
 # executables in Container staging directories
 Containers/zmq_proxy/zmq_proxy
