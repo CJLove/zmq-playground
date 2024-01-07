@@ -15,7 +15,6 @@ data:
       - tcp://zmq-xpub-proxy-1:8200
       - tcp://zmq-xpub-proxy-2:8200
     sub-endpoint: tcp://zmq-xsub-proxy:8201
-    sub-endpoint: tcp://zmq-proxy-service:9210
     sub-topics:
       - control
     pub-topics:

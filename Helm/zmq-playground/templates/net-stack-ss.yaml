@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: net-stack
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: net-stack # has to match .spec.template.metadata.labels
+  serviceName: none
+  replicas: {{ .Values.netStackReplicas }}
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: net-stack # has to match .spec.selector.matchLabels
+        {{ if .Values.prometheus }}prometheus: "true"{{ end }}
+    spec:
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: net-stack-cfg
+          configMap:
+            name: net-stack-cfg
+      containers:
+      - name: net-stack
+        image: "{{ .Values.image.registry }}/net-stack:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: metrics
+          containerPort: {{ .Values.metricsPort }}
+        volumeMounts:
+        - mountPath: /net-stack/config
+          name: net-stack-cfg
+          readOnly: true

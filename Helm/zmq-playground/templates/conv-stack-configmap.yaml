@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conv-stack-cfg
+  namespace: {{ .Release.Namespace }}
+data:
+  conv-stack.yaml: |
+    name: conv-stack
+    id: cfb5feb0-ce4f-11ec-84fb-b88584a4a6fe
+    log-level: {{ .Values.logLevel }}
+    health-port: {{ .Values.healthzPort }}
+    pub-endpoints: 
+      - tcp://zmq-xpub-proxy-0:{{ .Values.xpubPort }}{{ if lt 1 (.Values.proxyReplicas | int )}}
+      - tcp://zmq-xpub-proxy-1:{{ .Values.xpubPort }}{{ if lt 2 (.Values.proxyReplicas | int )}}
+      - tcp://zmq-xpub-proxy-2:{{ .Values.xpubPort }}{{ end }}{{ end }}
+    sub-endpoint: tcp://zmq-xsub-proxy:{{ .Values.xsubPort }}
+    sub-topics:
+      - stack-a-ingress
+      - stack-b-ingress
+      - zmqStack-0-ingress
+      - zmqStack-1-ingress
+      - zmqStack-2-ingress
+      - zmqStack-3-ingress
+      - net-stack-0-ingress
+      - net-stack-1-ingress
+      - net-stack-2-ingress
+      - net-stack-3-ingress
+    conversions:
+      stack-a-ingress: stack-b-egress
+      stack-b-ingress: stack-a-egress
+      zmqStack-0-ingress: zmqStack-1-egress
+      zmqStack-1-ingress: zmqStack-2-egress
+      zmqStack-2-ingress: zmqStack-3-egress
+      zmqStack-3-ingress: zmqStack-0-egress
+      net-stack-0-ingress: net-stack-1-egress
+      net-stack-1-ingress: net-stack-0-egress
+      net-stack-2-ingress: net-stack-3-egress
+      net-stack-3-ingress: net-stack-2-egress

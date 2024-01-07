@@ -1,0 +1,51 @@
+# Default values for zmq-playground.
+# This is a YAML-formatted file.
+
+image:
+  registry: fir.love.io:3005
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+# /healthz port
+healthzPort: 6000
+
+# /metrics port
+metricsPort: 6001
+
+# XPUB port
+xpubPort: 8200
+
+# XSUB port
+xsubPort: 8201
+
+# ZMQ Context size (# of threads)
+contextSize: 2
+
+# Service log level
+#   0 - trace
+#   1 - debug
+#   2 - info
+#   3 - warn
+#   4 - err
+#   5 - critical
+#   6 - off
+logLevel: 0
+
+# ZMQ XPUB/XSUB Proxy replicas (1-3)
+proxyReplicas: 3
+
+# net-stack replicas
+netStackReplicas: 2
+
+# Base port for net-stack services
+netStackBasePort: 7000
+
+# Base NodePort for net-stack services
+netStackBaseNodePort: 31000
+
+# zmq-stack replicas
+zmqStackReplicas: 2
+
+# Enable prometheus monitoring
+prometheus: true

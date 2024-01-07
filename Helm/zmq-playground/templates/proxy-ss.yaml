@@ -1,0 +1,39 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zmq-proxy
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: zmq-proxy # has to match .spec.template.metadata.labels
+  serviceName: "zmq-xsub-proxy"
+  replicas: {{ .Values.proxyReplicas }} # by default is 1
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: zmq-proxy # has to match .spec.selector.matchLabels
+        {{ if .Values.prometheus }}prometheus: "true"{{ end }}
+    spec:
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: zmq-proxy-cfg
+          configMap:
+            name: zmq-proxy-cfg
+      containers:
+      - name: zmq-proxy
+        image: "{{ .Values.image.registry }}/zmq-proxy:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: xpub
+          containerPort: {{ .Values.xpubPort }} 
+        - name: xsub
+          containerPort: {{ .Values.xsubPort }}
+        - name: metrics
+          containerPort: {{ .Values.metricsPort }}
+        volumeMounts:
+        - mountPath: /zmq-proxy/config
+          name: zmq-proxy-cfg
+          readOnly: true

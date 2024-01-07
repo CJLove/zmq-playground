@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zmq-proxy-cfg
+  namespace: {{ .Release.Namespace }}
+data:
+  zmq-proxy.yaml: |
+    xpub-port: {{ .Values.xpubPort }}
+    xsub-port: {{ .Values.xsubPort }}
+    health-port: {{ .Values.healthzPort }}
+    log-level: {{ .Values.logLevel }}
+    control-endpoint: "inproc://ctrl-endpoint"
+    threads: {{ .Values.contextSize }}
