@@ -12,5 +12,3 @@ sub-topics:
 pub-topics:
   - topic2
 listen-port: 7000
-dest-ip: fir.love.io
-dest-port: 7100

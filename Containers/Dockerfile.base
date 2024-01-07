@@ -1,0 +1,4 @@
+FROM registry.fedoraproject.org/fedora-minimal:39
+
+RUN \
+    microdnf install -y zeromq

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "UdpSocket.h"
+#include "TcpServer.h"
 #include "ZmqStack.h"
 
 class NetStack : public ZmqStack {
 public:
     NetStack(const std::string &name, zmq::context_t &ctx, std::shared_ptr<prometheus::Registry> registry,
              const std::vector<std::string> &pubEndpoints, const std::string &subEndpoint, const std::vector<std::string> &subTopics,
-             const std::vector<std::string> &pubTopics, uint16_t listenPort, const std::string &dest, uint16_t destPort);
+             const std::vector<std::string> &pubTopics, uint16_t listenPort);
 
     virtual ~NetStack();
 
@@ -18,19 +18,23 @@ public:
     int Health();
 
     /**
-     * @brief Receive data from UDP socket
-     *
-     * @param data
-     * @param size
+     * @brief TcpServer interfaces
+     * 
      */
-    void onReceiveData(const char *data, size_t size);
+    void onClientConnect(const sockets::ClientHandle &client);
+
+    void onReceiveClientData(const sockets::ClientHandle &client, const char *data, size_t size);
+
+    void onClientDisconnect(const sockets::ClientHandle &client, const sockets::SocketRet &ret);
+
 
 private:
-    UdpSocket<NetStack> m_socket;
+    sockets::SocketOpt m_socketOpt;
+    sockets::TcpServer<NetStack> m_server;
     std::vector<std::string> m_pubTopics;
+    std::mutex m_clientMutex;
+    std::set<int> m_clients;
     uint16_t m_listenPort;
-    std::string m_dest;
-    uint16_t m_destPort;
 
     prometheus::Family<prometheus::Counter> &m_udpFamily;
     prometheus::Counter* m_udpTxCounter;

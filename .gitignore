@@ -6,19 +6,7 @@ build_aarch64
 conv-stack/bin/linux
 inproc-stack/bin/linux
 net-stack/bin/linux
-udp-driver/bin/linux
+net-driver/bin/linux
 zmq-proxy/bin/linux
 zmq-stack/bin/linux
 
-# executables in Container staging directories
-Containers/zmq_proxy/zmq_proxy
-Containers/zmq_producer/zmq_producer
-Containers/zmq_subscriber/zmq_subscriber
-Containers/zmq_pub/zmq_pub
-Containers/zmq_sub/zmq_sub
-Containers/zmq-proxy/zmq-proxy
-Containers/zmq-stack/zmq-stack
-Containers/conv-stack/conv-stack
-Containers/net-stack/net-stack
-
-Containers/*/libprom*

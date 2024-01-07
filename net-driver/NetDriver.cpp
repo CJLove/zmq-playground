@@ -3,69 +3,65 @@
 #include <fmt/core.h>
 #include <iostream>
 #include <unistd.h>
-#include "UdpSocket.h"
+#include "TcpClient.h"
 
 
-class UnicastApp {
+class ClientApp {
 public:
-    // UDP Multicast
-    UnicastApp(const char *remoteAddr, uint16_t localPort, uint16_t port);
+    // TCP Client
+    ClientApp(const char *remoteAddr, uint16_t port);
 
-    virtual ~UnicastApp() = default;
+    virtual ~ClientApp() = default;
 
     void onReceiveData(const char *data, size_t size);
 
-    void sendMsg(const unsigned char *data, size_t len);
+    void sendMsg(const char *data, size_t len);
 
-    void onDisconnect(const SocketRet &ret);
+    void onDisconnect(const sockets::SocketRet &ret);
 
 private:
-    UdpSocket<UnicastApp> m_socket;
+    sockets::TcpClient<ClientApp> m_client;
 
     std::shared_ptr<spdlog::logger> m_logger;
 };
 
-UnicastApp::UnicastApp(const char *remoteAddr, uint16_t localPort, uint16_t port)
-    : m_socket(*this), m_logger(spdlog::get("udp")) {
-    SocketRet ret = m_socket.startUnicast(remoteAddr, localPort, port);
+ClientApp::ClientApp(const char *remoteAddr, uint16_t port)
+    : m_client(*this), m_logger(spdlog::get("udp")) {
+    sockets::SocketRet ret = m_client.connectTo(remoteAddr, port);
     if (ret.m_success) {
-        m_logger->info("Listening on UDP 0.0.0.0:{} sending to {}:{}", localPort, remoteAddr, port);
+        m_logger->info("Connecting to {}:{}", remoteAddr, port);
     } else {
         m_logger->error("Error: {}", ret.m_msg);
     }
 }
 
-void UnicastApp::sendMsg(const unsigned char *data, size_t len) {
-    auto ret = m_socket.sendMsg(data, len);
+void ClientApp::sendMsg(const char *data, size_t len) {
+    auto ret = m_client.sendMsg(data, len);
     if (!ret.m_success) {
         m_logger->error("Send Error: {}", ret.m_msg);
     }
 }
 
-void UnicastApp::onReceiveData(const char *data, size_t size) {
+void ClientApp::onReceiveData(const char *data, size_t size) {
     std::string str(data, size);
 
     m_logger->info("Received: {}", str);
 }
 
-void UnicastApp::onDisconnect(const SocketRet & /* ret */) { m_logger->info("Disconnected"); }
+void ClientApp::onDisconnect(const sockets::SocketRet & /* ret */) { m_logger->info("Disconnected"); }
 
-void usage() { std::cout << "udp-driver -n <name> -a <remoteAddr> -l <localPort> -p <port> [-s <size>]\n"; }
+void usage() { std::cout << "net-driver -n <name> -a <remoteAddr> -p <port> [-s <size>]\n"; }
 
 int main(int argc, char **argv) {
     int c = 0;
     const char *addr = nullptr;
     uint16_t port = 0;
-    uint16_t localPort = 0;
     size_t size = 1472;
     std::string name = "udp-driver";
     while ((c = getopt(argc, argv, "a:l:p:n:s:?")) != EOF) {  // NOLINT
         switch (c) {
             case 'a':
                 addr = optarg;
-                break;
-            case 'l':
-                localPort = static_cast<uint16_t>(std::stoul(optarg));
                 break;
             case 'p':
                 port = static_cast<uint16_t>(std::stoul(optarg));
@@ -87,7 +83,7 @@ int main(int argc, char **argv) {
     // 2018-10-08 21:08:31.633|020288|I|Thread Worker thread 3 doing something
     auto pattern = fmt::format("%Y-%m-%d %H:%M:%S.%e|{}|%t|%L|%v",name);
     logger->set_pattern(pattern);
-    auto *app = new UnicastApp(addr, localPort, port);
+    auto *app = new ClientApp(addr, port);
 
     while (true) {
         std::string raw;
@@ -100,7 +96,7 @@ int main(int argc, char **argv) {
             raw = std::string(size - (name.size() + 1), 'X');
         }
         std::string data = fmt::format("{}:{}", name, raw);
-        app->sendMsg(reinterpret_cast<const unsigned char *>(data.data()), data.size());
+        app->sendMsg(reinterpret_cast<const char *>(data.data()), data.size());
     }
 
     delete app;

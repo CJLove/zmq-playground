@@ -22,8 +22,10 @@ data:
       - zmqStack-1-ingress
       - zmqStack-2-ingress
       - zmqStack-3-ingress
-      - net-stack-a-ingress
-      - net-stack-b-ingress
+      - net-stack-0-ingress
+      - net-stack-1-ingress
+      - net-stack-2-ingress
+      - net-stack-3-ingress
     conversions:
       stack-a-ingress: stack-b-egress
       stack-b-ingress: stack-a-egress
@@ -31,8 +33,10 @@ data:
       zmqStack-1-ingress: zmqStack-2-egress
       zmqStack-2-ingress: zmqStack-3-egress
       zmqStack-3-ingress: zmqStack-0-egress
-      net-stack-a-ingress: net-stack-b-egress
-      net-stack-b-ingress: net-stack-a-egress
+      net-stack-0-ingress: net-stack-1-egress
+      net-stack-1-ingress: net-stack-0-egress
+      net-stack-2-ingress: net-stack-3-egress
+      net-stack-3-ingress: net-stack-2-egress
 ---
 apiVersion: v1
 kind: List
@@ -79,11 +83,9 @@ items:
               - mountPath: /conv-stack/config
                 name: conv-stack-cfg
                 readOnly: true
-
             ports:
               - name: metrics
                 containerPort: 6001
-          nodeSelector:
-            cputype: amd64
+
 
 

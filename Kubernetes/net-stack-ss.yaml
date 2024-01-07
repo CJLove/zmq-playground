@@ -1,0 +1,129 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: net-stack-cfg
+  namespace: zmq-test
+data:
+  net-stack.yaml: |
+    name: net-stack
+    id: cfb5feb0-ce4f-11ec-84fb-b88584a4a6fe
+    log-level: 0
+    health-port: 6000
+    pub-endpoints: 
+      - tcp://zmq-xpub-proxy-0:8200
+      - tcp://zmq-xpub-proxy-1:8200
+      - tcp://zmq-xpub-proxy-2:8200
+    sub-endpoint: tcp://zmq-xsub-proxy:8201
+    sub-endpoint: tcp://zmq-proxy-service:9210
+    sub-topics:
+      - control
+    pub-topics:
+      - 
+    listen-port: 7000
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: net-stack
+  namespace: zmq-test
+spec:
+  selector:
+    matchLabels:
+      app: net-stack # has to match .spec.template.metadata.labels
+  serviceName: none
+  replicas: 2 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: net-stack # has to match .spec.selector.matchLabels
+        prometheus: "true"
+    spec:
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: net-stack-cfg
+          configMap:
+            name: net-stack-cfg
+      containers:
+      - name: net-stack
+        image: fir.love.io:3005/net-stack:latest
+        ports:
+        - name: metrics
+          containerPort: 6001
+        volumeMounts:
+        - mountPath: /net-stack/config
+          name: net-stack-cfg
+          readOnly: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: net-stack-0-service
+  namespace: zmq-test
+  labels:
+    statefulset.kubernetes.io/pod-name: net-stack-0
+spec:
+  type: NodePort
+  ports:
+    - name: ingress
+      protocol: TCP
+      port: 7000
+      targetPort: 7000
+      nodePort: 30000
+  selector:
+    statefulset.kubernetes.io/pod-name: net-stack-0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: net-stack-1-service
+  namespace: zmq-test
+  labels:
+    statefulset.kubernetes.io/pod-name: net-stack-1
+spec:
+  type: NodePort
+  ports:
+    - name: ingress
+      protocol: TCP
+      port: 7001
+      targetPort: 7000
+      nodePort: 30001
+  selector:
+    statefulset.kubernetes.io/pod-name: net-stack-1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: net-stack-2-service
+  namespace: zmq-test
+  labels:
+    statefulset.kubernetes.io/pod-name: net-stack-2
+spec:
+  type: NodePort
+  ports:
+    - name: ingress
+      protocol: TCP
+      port: 7002
+      targetPort: 7000
+      nodePort: 30002
+  selector:
+    statefulset.kubernetes.io/pod-name: net-stack-2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: net-stack-3-service
+  namespace: zmq-test
+  labels:
+    statefulset.kubernetes.io/pod-name: net-stack-3
+spec:
+  type: NodePort
+  ports:
+    - name: ingress
+      protocol: TCP
+      port: 7003
+      targetPort: 7000
+      nodePort: 30003
+  selector:
+    statefulset.kubernetes.io/pod-name: net-stack-3

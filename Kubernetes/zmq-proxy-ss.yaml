@@ -119,5 +119,3 @@ spec:
         - mountPath: /zmq-proxy/config
           name: zmq-proxy-cfg
           readOnly: true
-      nodeSelector:
-        cputype: amd64

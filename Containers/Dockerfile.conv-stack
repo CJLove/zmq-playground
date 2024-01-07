@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/fedora-minimal:39
+FROM fir.love.io:3005/zmq-base:latest
 
 ARG TARGETPLATFORM
 
@@ -6,8 +6,5 @@ WORKDIR /conv-stack
 
 COPY bin/$TARGETPLATFORM/conv-stack .
 ADD config/conv-stack.yaml ./config/
-
-RUN \
-    microdnf install -y zeromq
 
 CMD  ./conv-stack -f ./config/conv-stack.yaml

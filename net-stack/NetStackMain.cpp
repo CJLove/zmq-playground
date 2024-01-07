@@ -1,6 +1,7 @@
 #include <atomic>
 #include "HealthStatus.h"
 #include "NetStack.h"
+#include "Util.h"
 #include "yaml-cpp/yaml.h"
 #include "zmq.hpp"
 #include <fmt/core.h>
@@ -27,8 +28,7 @@ void sig_handler(int )
 
 void usage() {
     std::cerr << "Usage:\n"
-              << "net-stack -n <name> -f <configFile> -p <pubEndpoint> -s <subEndpoint> -S <sub topic> -P <pub topic> -d "
-                 "<destIP> -D <destPort>\n";
+              << "net-stack -n <name> -f <configFile> -p <pubEndpoint> -s <subEndpoint> -S <sub topic> -P <pub topic> -d \n";
 }
 
 int main(int argc, char **argv) {
@@ -43,9 +43,9 @@ int main(int argc, char **argv) {
     uint16_t healthStatusPort = 6000;
     uint16_t metricsPort = 6001;
     uint16_t listenPort = 7000;
-    std::string destIp = "fir.love.io";
-    uint16_t destPort = 7100;
     int c;
+
+    uint32_t instance = getContainerInstance();
 
     ::signal(SIGINT,&sig_handler);
     ::signal(SIGTERM,&sig_handler);
@@ -73,12 +73,6 @@ int main(int argc, char **argv) {
                 break;
             case 'S':
                 subTopics.push_back(optarg);
-                break;
-            case 'd':
-                destIp = optarg;
-                break;
-            case 'D':
-                destPort = static_cast<uint16_t>(std::stoul(optarg));
                 break;
             case 'L':
                 listenPort = static_cast<uint16_t>(std::stoul(optarg));
@@ -119,12 +113,6 @@ int main(int argc, char **argv) {
             if (m_yaml["listen-port"]) {
                 listenPort = m_yaml["listen-port"].as<uint16_t>();
             }
-            if (m_yaml["dest-ip"]) {
-                destIp = m_yaml["dest-ip"].as<std::string>();
-            }
-            if (m_yaml["dest-port"]) {
-                destPort = m_yaml["dest-port"].as<uint16_t>();
-            }
             if (m_yaml["name"]) {
                 name = m_yaml["name"].as<std::string>();
             }
@@ -150,11 +138,18 @@ int main(int argc, char **argv) {
         }
     }
 
+    name = fmt::format("{}-{}", name, instance);
+    // Formulate uuid incorporating instance number
+
     // Update logging pattern to reflect the service name
     auto pattern = fmt::format("%Y-%m-%d %H:%M:%S.%e|{}|%t|%L|%v", name);
     logger->set_pattern(pattern);
     // Set the log level for filtering
     spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
+
+    // Adjust pub and sub topics
+    pubTopics = {fmt::format("{}-ingress", name)};
+    subTopics = {fmt::format("{}-egress", name)};
 
     logger->info("XPUB Endpoint {} XSUB Endpoint {}", fmt::join(pubEndpoints, ","), subEndpoint);
     for (const auto &topic : pubTopics) {
@@ -172,7 +167,7 @@ int main(int argc, char **argv) {
     // ZMQ Context
     zmq::context_t context(2);
 
-    NetStack stack(name, context, registry, pubEndpoints, subEndpoint, subTopics, pubTopics, listenPort, destIp, destPort);
+    NetStack stack(name, context, registry, pubEndpoints, subEndpoint, subTopics, pubTopics, listenPort);
     HealthStatus<NetStack> healthStatus(stack, healthStatusPort);
 
     exposer.RegisterCollectable(registry);

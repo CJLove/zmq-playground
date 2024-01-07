@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/fedora-minimal:39
+FROM fir.love.io:3005/zmq-base:latest
 
 ARG TARGETPLATFORM
 
@@ -6,8 +6,5 @@ WORKDIR /zmq-proxy
 
 COPY bin/$TARGETPLATFORM/zmq-proxy .
 ADD config/zmq-proxy.yaml ./config/
-
-RUN \
-    microdnf install -y zeromq
 
 CMD  ./zmq-proxy -f ./config/zmq-proxy.yaml

@@ -37,7 +37,6 @@ spec:
       labels:
         app: zmq-stack # has to match .spec.selector.matchLabels
         prometheus: "true"
-
     spec:
       terminationGracePeriodSeconds: 10
       volumes:
@@ -45,7 +44,7 @@ spec:
           configMap:
             name: zmq-stack-cfg
       containers:
-      - name: zmq-proxy
+      - name: zmq-stack
         image: fir.love.io:3005/zmq-stack:latest
         ports:
         - name: metrics
@@ -54,5 +53,3 @@ spec:
         - mountPath: /zmq-stack/config
           name: zmq-stack-cfg
           readOnly: true
-      nodeSelector:
-        cputype: amd64

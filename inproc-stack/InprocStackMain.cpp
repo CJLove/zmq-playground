@@ -100,8 +100,8 @@ int main(int argc, char **argv)
         new ZmqStack("Stack 1", context, registry, pubEndpoints, subEndpoint, stack2Topics),
         new ZmqStack("Stack 2", context, registry, pubEndpoints, subEndpoint, stack3Topics),
         new ZmqStack("Stack 3", context, registry, pubEndpoints, subEndpoint, stack4Topics),
-        new NetStack("netA", context, registry, pubEndpoints, subEndpoint, netASubTopics, netAPubTopics, 6000, "127.0.0.1", 7000),
-        new NetStack("netB", context, registry, pubEndpoints, subEndpoint, netBSubTopics, netBPubTopics, 6001, "127.0.0.1", 7001),
+        new NetStack("netA", context, registry, pubEndpoints, subEndpoint, netASubTopics, netAPubTopics, 6000),
+        new NetStack("netB", context, registry, pubEndpoints, subEndpoint, netBSubTopics, netBPubTopics, 6001),
         new ConvStack("conv", context, registry, pubEndpoints, subEndpoint, convTopics, conversions)
     };
 

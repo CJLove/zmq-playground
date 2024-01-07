@@ -29,6 +29,9 @@ fi
 newTag=$(version)
 
 case $arg in
+base)
+    docker buildx build -f "$builddir/Dockerfile.base" --platform linux/amd64,linux/arm64 --push -t fir.love.io:3005/zmq-base:latest .
+    ;; 
 zmq-proxy)
     cd ../zmq-proxy || exit
     docker buildx build -f "$builddir/Dockerfile.zmq-proxy" --platform linux/amd64,linux/arm64 --push -t fir.love.io:3005/zmq-proxy:latest -t "fir.love.io:3005/zmq-proxy:${newTag}" .
