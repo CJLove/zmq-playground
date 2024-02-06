@@ -45,14 +45,15 @@ jobs:
             [registry."fir.love.io:3005"]
             ca=["/etc/certs/ca.crt"]      
 
-      - name: zmq-base
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Containers/Dockerfile.base
-          push: true
-          tags: fir.love.io:3005/zmq-base:latest
-          platforms: linux/amd64,linux/aarch64
+      # Assume base image exists in registry
+      # - name: zmq-base
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./Containers/Dockerfile.base
+      #     push: true
+      #     tags: fir.love.io:3005/zmq-base:latest
+      #     platforms: linux/amd64,linux/aarch64
 
       - name: zmq-proxy
         uses: docker/build-push-action@v5
