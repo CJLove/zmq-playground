@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Cd to workspace
         run: cd ${{ gitea.workspace }}
-        
+
       - name: Build
         uses: https://github.com/addnab/docker-run-action@v3
         with:
@@ -33,25 +33,62 @@ jobs:
 
             ./build.sh --archlist=x86_64,aarch64 --toolchain=./ArmLinux.cmake
 
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v3
-      #   with:
-      #     platforms: arm64
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
-      #   with:
-      #     config-inline: |
-      #       debug = true
-      #       [registry."fir.love.io:3005"]
-      #       ca=["/etc/certs/ca.crt"]      
-      # - name: Build and push
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: ./stage
-      #     file: ./stage/Dockerfile
-      #     push: true
-      #     tags: fir.love.io:3005/cpp-multiarch:latest, fir.love.io:3005/cpp-multiarch:${{ github.run_number }}
-      #     platforms: linux/amd64,linux/aarch64
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          config-inline: |
+            debug = true
+            [registry."fir.love.io:3005"]
+            ca=["/etc/certs/ca.crt"]      
+
+      - name: zmq-base
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Containers/Dockerfile.base
+          push: true
+          tags: fir.love.io:3005/zmq-base:latest
+          platforms: linux/amd64,linux/aarch64
+
+      - name: zmq-proxy
+        uses: docker/build-push-action@v5
+        with:
+          context: ./zmq-proxy
+          file: ./Containers/Dockerfile.zmq-proxy
+          push: true
+          tags: fir.love.io:3005/zmq-proxy:latest, fir.love.io:3005/zmq-proxy:${{ github.run_number }}
+          platforms: linux/amd64,linux/aarch64
+
+      - name: zmq-stack
+        uses: docker/build-push-action@v5
+        with:
+          context: ./zmq-stack
+          file: ./Containers/Dockerfile.zmq-stack
+          push: true
+          tags: fir.love.io:3005/zmq-stack:latest, fir.love.io:3005/zmq-stack:${{ github.run_number }}
+          platforms: linux/amd64,linux/aarch64
+
+      - name: conv-stack
+        uses: docker/build-push-action@v5
+        with:
+          context: ./conv-stack
+          file: ./Containers/Dockerfile.conv-stack
+          push: true
+          tags: fir.love.io:3005/conv-stack:latest, fir.love.io:3005/conv-stack:${{ github.run_number }}
+          platforms: linux/amd64,linux/aarch64
+
+      - name: net-stack
+        uses: docker/build-push-action@v5
+        with:
+          context: ./net-stack
+          file: ./Containers/Dockerfile.net-stack
+          push: true
+          tags: fir.love.io:3005/net-stack:latest, fir.love.io:3005/net-stack:${{ github.run_number }}
+          platforms: linux/amd64,linux/aarch64
 
       # - name: apply multiarch deployment
       #   uses: steebchen/kubectl@v2.1.1

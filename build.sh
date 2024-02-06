@@ -109,7 +109,7 @@ do
     [ $ret -ne 0 ] && exit $ret
 
     # Build and install for the specified architecture
-    make install
+    make -j $(nproc --all) install
     ret=$?
     [ $ret -ne 0 ] && exit $ret
 
