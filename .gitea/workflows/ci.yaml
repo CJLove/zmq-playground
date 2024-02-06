@@ -17,14 +17,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - run: cd ${{ gitea.workspace }}
-      - name: Check /etc/certs
-        run: ls /etc/certs
+      - name: Cd to workspace
+        run: cd ${{ gitea.workspace }}
+        
       - name: Build
         uses: https://github.com/addnab/docker-run-action@v3
         with:
           image: fir.love.io:3005/amd64/zmqcross-gcc1321:latest
-          options: --rm --volumes-from=${{ env.JOB_CONTAINER_NAME }}
+          options: --rm --pull=always --volumes-from=${{ env.JOB_CONTAINER_NAME }}
           run: |
             g++ --version
             aarch64-linux-gnu-g++ --version
