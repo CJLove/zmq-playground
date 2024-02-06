@@ -1,6 +1,7 @@
 # build directory
 build
 build_aarch64
+build_x86_64
 
 # x86_64 and aarch64 executables for each service
 conv-stack/bin/linux
