@@ -90,7 +90,22 @@ jobs:
           push: true
           tags: fir.love.io:3005/net-stack:latest, fir.love.io:3005/net-stack:${{ github.run_number }}
           platforms: linux/amd64,linux/aarch64
-
+      - name: Report failure
+        if: failure()
+        uses: tsickert/discord-webhook@v5.4.0
+        with:
+          webhook-url: ${{ secrets.WEBHOOK_URL }}
+          username: Gitea
+          avatar-url: https://about.gitea.com/gitea-text.svg
+          content: "Repo ${{ gitea.repository }} branch ${{ gitea.ref }} build :x:"
+      - name: Report success
+        if: success()
+        uses: tsickert/discord-webhook@v5.4.0
+        with:
+          webhook-url: ${{ secrets.WEBHOOK_URL }}
+          username: Gitea
+          avatar-url: https://about.gitea.com/gitea-text.svg
+          content: "Repo ${{ gitea.repository }} branch ${{ gitea.ref }} build :white_check_mark:"
       # - name: apply multiarch deployment
       #   uses: steebchen/kubectl@v2.1.1
       #   with:
