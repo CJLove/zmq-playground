@@ -23,7 +23,7 @@ jobs:
       - name: Build
         uses: https://github.com/addnab/docker-run-action@v3
         with:
-          image: fir.love.io:3005/zmqcross-gcc1321:latest
+          image: fir.love.io:3005/amd64/zmqcross-gcc1421:latest
           options: --rm --pull=always --volumes-from=${{ env.JOB_CONTAINER_NAME }}
           run: |
             g++ --version
