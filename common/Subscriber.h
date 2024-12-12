@@ -5,6 +5,7 @@
 #include <atomic>
 #include <functional>
 #include <spdlog/spdlog.h>
+#include <fmt/ranges.h>
 #include <prometheus/counter.h>
 #include <prometheus/registry.h>
 #include <thread>
