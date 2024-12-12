@@ -27,7 +27,7 @@ find_package(ZeroMQ REQUIRED)
 # When cross-compiling for aarch64 there is an issue finding libsodium.so needed by libzmq.so
 set (SODIUM_LIB "")
 if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
-    set (SODIUM_LIB "/home/love/aarch64/usr/lib64/libsodium.so")
+    set (SODIUM_LIB "/home/aarch64/usr/lib64/libsodium.so")
 endif()
 
 # spdlog library dependency
