@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conv-stack
+  namespace: {{ $.Release.Namespace }}
+  labels:
+spec:
+  type: ClusterIP
+  ports:
+    - name: pull
+      protocol: TCP
+      port: {{ .Values.convPort }}
+      targetPort: {{ .Values.convPort }}
+  selector:
+    app.kubernetes.io/name: conv-stack
