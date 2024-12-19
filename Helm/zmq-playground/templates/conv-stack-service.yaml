@@ -13,4 +13,4 @@ spec:
       port: {{ .Values.convPort }}
       targetPort: {{ .Values.convPort }}
   selector:
-    app.kubernetes.io/name: conv-stack
+    app: conv-stack

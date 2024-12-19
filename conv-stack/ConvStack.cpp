@@ -26,7 +26,7 @@ void ConvStack::onReceivedMessage(std::vector<zmq::message_t> &msgs) {
     auto f = m_conversionMap.find(topic);
     if (f != m_conversionMap.end()) {
         auto topics = m_conversionMap[topic];
-        Publish(topics, msgs[1].to_string());
+        Publish(topics, msg);
         m_logger->info("{} receive message {} on topic {} publishing to {}", m_name, msg, topic, fmt::join(topics, " "));
     }
 }
