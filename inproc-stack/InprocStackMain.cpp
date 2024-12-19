@@ -28,6 +28,8 @@ int main(int argc, char **argv)
     std::string pubEndpoint = "inproc://pub-endpoint";
     std::string subEndpoint = "inproc://sub-endpoint";
     std::string ctrlEndpoint = "inproc://ctrl-endpoint";
+    std::string receiverEndpoint;
+    std::string senderEndpoint;
     std::string name = "zmqStack";
     uint16_t metricsPort = 6001;
 
@@ -96,13 +98,13 @@ int main(int argc, char **argv)
     std::vector<std::string> convTopics = { "net-a-ingress", "net-b-ingress" };
 
     std::vector<ZmqStack*> stacks = {
-        new ZmqStack("Stack 0", context, registry, pubEndpoints, subEndpoint, stack1Topics),
-        new ZmqStack("Stack 1", context, registry, pubEndpoints, subEndpoint, stack2Topics),
-        new ZmqStack("Stack 2", context, registry, pubEndpoints, subEndpoint, stack3Topics),
-        new ZmqStack("Stack 3", context, registry, pubEndpoints, subEndpoint, stack4Topics),
+        new ZmqStack("Stack 0", context, registry, pubEndpoints, subEndpoint, receiverEndpoint, senderEndpoint, stack1Topics),
+        new ZmqStack("Stack 1", context, registry, pubEndpoints, subEndpoint, receiverEndpoint, senderEndpoint, stack2Topics),
+        new ZmqStack("Stack 2", context, registry, pubEndpoints, subEndpoint, receiverEndpoint, senderEndpoint, stack3Topics),
+        new ZmqStack("Stack 3", context, registry, pubEndpoints, subEndpoint, receiverEndpoint, senderEndpoint, stack4Topics),
         new NetStack("netA", context, registry, pubEndpoints, subEndpoint, netASubTopics, netAPubTopics, 6000),
         new NetStack("netB", context, registry, pubEndpoints, subEndpoint, netBSubTopics, netBPubTopics, 6001),
-        new ConvStack("conv", context, registry, pubEndpoints, subEndpoint, convTopics, conversions)
+        new ConvStack("conv", context, registry, pubEndpoints, subEndpoint, receiverEndpoint, convTopics, conversions)
     };
 
     for (const auto &topic: conversions) {

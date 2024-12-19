@@ -7,6 +7,7 @@ metrics-port: 6001
 pub-endpoints: 
   - tcp://localhost:9200
 sub-endpoint: tcp://localhost:9210
+receiver-endpoint: tcp://*:6005
 sub-topics:
   - topic1
   - topic2

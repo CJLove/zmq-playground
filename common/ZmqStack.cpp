@@ -3,7 +3,14 @@
 
 using namespace prometheus;
 
-ZmqStack::ZmqStack(const std::string &name, zmq::context_t  &ctx, std::shared_ptr<prometheus::Registry> registry, const std::vector<std::string> &pubEndpoints, const std::string &subEndpoint, const std::vector<std::string> &topics):
+ZmqStack::ZmqStack(const std::string &name, 
+                   zmq::context_t  &ctx, 
+                   std::shared_ptr<prometheus::Registry> registry, 
+                   const std::vector<std::string> &pubEndpoints, 
+                   const std::string &subEndpoint,
+                   const std::string &receiverEndpoint,
+                   const std::string &senderEndpoint, 
+                   const std::vector<std::string> &topics):
     m_name(name),
     m_publisher(ctx, registry, subEndpoint),
     m_subscriber(ctx, registry, pubEndpoints, topics, *this),
@@ -12,6 +19,14 @@ ZmqStack::ZmqStack(const std::string &name, zmq::context_t  &ctx, std::shared_pt
 {
     for (const auto &topic: topics) {
         m_subscriptions.insert(topic);
+    }
+
+    if (!receiverEndpoint.empty()) {
+        m_receiver = std::make_unique<Receiver<ZmqStack>>(ctx, registry, receiverEndpoint, *this);
+    }
+
+    if (!senderEndpoint.empty()) {
+        m_sender = std::make_unique<Sender>(ctx, registry, senderEndpoint);
     }
 
 }
@@ -23,7 +38,11 @@ ZmqStack::~ZmqStack()
 
 void ZmqStack::onReceivedMessage(std::vector<zmq::message_t> &msgs)
 {
-    m_logger->info("Received message {} on topic {}", msgs[1].to_string(), msgs[0].to_string());
+    if (msgs.size() == 1) {
+        m_logger->info("Received message {}", msgs[0].to_string());
+    } else {
+        m_logger->info("Received message {} on topic {}", msgs[1].to_string(), msgs[0].to_string());
+    }
 }
 
 void ZmqStack::onCtrlMessage(std::vector<zmq::message_t> &msgs)
@@ -64,10 +83,21 @@ void ZmqStack::Publish(const std::vector<std::string> &topics, const std::string
     m_publisher.publishMsg(topics,msg);
 }
 
+void ZmqStack::Send(const std::string &msg)
+{
+    if (m_sender) {
+        m_logger->info("Published message {} to server", msg);
+        m_sender->sendMsg(msg);
+    }
+}
+
 void ZmqStack::Stop()
 {
     m_subscriber.Stop();
     m_publisher.Stop();
+    if (m_receiver) {
+        m_receiver->Stop();
+    }
 }
 
 int ZmqStack::Health()

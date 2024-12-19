@@ -1,14 +1,27 @@
 #include "ConvStack.h"
 #include <fmt/format.h>
 
-ConvStack::ConvStack(const std::string &name, zmq::context_t &ctx, std::shared_ptr<prometheus::Registry> registry,
-              std::vector<std::string> &pubEndpoints, const std::string &subEndpoint, std::vector<std::string> &subTopics,
-              std::map<std::string, std::vector<std::string>> &conversionMap)
-    : ZmqStack(name, ctx, registry, pubEndpoints, subEndpoint, subTopics), m_conversionMap(conversionMap) {}
+ConvStack::ConvStack(const std::string &name, 
+                     zmq::context_t &ctx, 
+                     std::shared_ptr<prometheus::Registry> registry,
+                     std::vector<std::string> &pubEndpoints, 
+                     const std::string &subEndpoint, 
+                     const std::string &receiverEndpoint, 
+                     std::vector<std::string> &subTopics,
+                     std::map<std::string, std::vector<std::string>> &conversionMap)
+    : ZmqStack(name, ctx, registry, pubEndpoints, subEndpoint, receiverEndpoint, std::string(), subTopics), m_conversionMap(conversionMap) {}
 
 void ConvStack::onReceivedMessage(std::vector<zmq::message_t> &msgs) {
     std::lock_guard guard(m_mutex);
-    auto topic = msgs[0].to_string();
+    std::string topic;
+    std::string msg;
+    if (msgs.size() == 1) {
+        topic = "";
+        msg = msgs[0].to_string();
+    } else {
+        topic = msgs[0].to_string();
+        msg = msgs[1].to_string();
+    }
     auto f = m_conversionMap.find(topic);
     if (f != m_conversionMap.end()) {
         auto topics = m_conversionMap[topic];

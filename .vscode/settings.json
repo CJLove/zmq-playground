@@ -65,7 +65,12 @@
         "bitset": "cpp",
         "list": "cpp",
         "regex": "cpp",
-        "charconv": "cpp"
+        "charconv": "cpp",
+        "format": "cpp",
+        "span": "cpp",
+        "text_encoding": "cpp",
+        "valarray": "cpp",
+        "variant": "cpp"
     },
     "cmake.configureOnOpen": false
 }

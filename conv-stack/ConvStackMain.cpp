@@ -37,6 +37,7 @@ int main(int argc, char **argv) {
     std::vector<std::string> pubEndpoints;
     std::string pubEndpoint = "tcp://localhost:9200";
     std::string subEndpoint = "tcp://localhost:9210";
+    std::string receiverEndpoint = "tcp://localhost:6005";
     std::vector<std::string> subTopics;
     std::map<std::string, std::vector<std::string>> conversions;
     uint16_t healthStatusPort = 6000;
@@ -118,6 +119,9 @@ int main(int argc, char **argv) {
             if (m_yaml["sub-endpoint"]) {
                 subEndpoint = m_yaml["sub-endpoint"].as<std::string>();
             }
+            if (m_yaml["receiver-endpoint"]) {
+                receiverEndpoint = m_yaml["receiver-endpoint"].as<std::string>();
+            }
             if (m_yaml["sub-topics"]) {
                 if (m_yaml["sub-topics"].IsSequence()) {
                     subTopics = m_yaml["sub-topics"].as<std::vector<std::string>>();
@@ -160,7 +164,7 @@ int main(int argc, char **argv) {
     // ZMQ Context
     zmq::context_t context(2);
 
-    ConvStack stack(name, context, registry, pubEndpoints, subEndpoint, subTopics, conversions);
+    ConvStack stack(name, context, registry, pubEndpoints, subEndpoint, receiverEndpoint, subTopics, conversions);
     HealthStatus<ConvStack> healthStatus(stack, healthStatusPort);
 
     exposer.RegisterCollectable(registry);

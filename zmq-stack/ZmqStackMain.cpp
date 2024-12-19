@@ -36,6 +36,8 @@ int main(int argc, char **argv) {
     std::string subEndpoint = "tcp://localhost:9210";
     uint16_t healthStatusPort = 6000;
     uint16_t metricsPort = 6001;
+    std::string receiverEndpoint;
+    std::string senderEndpoint;
     std::vector<std::string> subTopics;
     std::vector<std::string> pubTopics;
     bool interactive = false;
@@ -104,6 +106,12 @@ int main(int argc, char **argv) {
             if (m_yaml["metrics-port"]) {
                 metricsPort = m_yaml["metrics-port"].as<uint16_t>();
             }
+            if (m_yaml["receiver-endpoint"]) {
+                receiverEndpoint = m_yaml["receiver-endpoint"].as<std::string>();
+            }
+            if (m_yaml["sender-endpoint"]) {
+                senderEndpoint = m_yaml["sender-endpoint"].as<std::string>();
+            }
             if (m_yaml["name"]) {
                 name = m_yaml["name"].as<std::string>();
             }
@@ -150,6 +158,13 @@ int main(int argc, char **argv) {
         logger->info("    Sub topic {}", topic);
     }
 
+    if (!receiverEndpoint.empty()) {
+        logger->info("Receiver endpoint {}", receiverEndpoint);
+    }
+    if (!senderEndpoint.empty()) {
+        logger->info("Client endpoint {}", senderEndpoint);
+    }
+
     std::string exposerEndpoint = fmt::format("0.0.0.0:{}", metricsPort);
     Exposer exposer{exposerEndpoint};
 
@@ -158,7 +173,7 @@ int main(int argc, char **argv) {
     // ZMQ Context
     zmq::context_t context(2);
 
-    ZmqStack stack(name, context, registry, pubEndpoints, subEndpoint, subTopics);
+    ZmqStack stack(name, context, registry, pubEndpoints, subEndpoint, receiverEndpoint, senderEndpoint, subTopics);
     HealthStatus<ZmqStack> healthStatus(stack, healthStatusPort);
 
     exposer.RegisterCollectable(registry);
@@ -168,6 +183,7 @@ int main(int argc, char **argv) {
                   << "    <topic1> .. <topicn>|msg - send msg to topic(s)\n"
                   << "    sub|<topic> - subscribe to topic\n"
                   << "    unsub|<topic> - unsubscribe from topic\n"
+                  << "    send|msg - send msg (if sender enabled)"
                   << "    list - list subscriptions\n"
                   << "    quit - exit\n";
         while (true) {
@@ -193,6 +209,8 @@ int main(int argc, char **argv) {
                     } else if (cmds[0] == "unsub") {
                         logger->info("Unsubscribing from topic {}", data);
                         stack.Unsubscribe(data);
+                    } else if (cmds[0] == "send") {
+                        stack.Send(data);
                     } else {
                         // Treat cmds vector as a set of topics
                         stack.Publish(cmds, data);
@@ -204,12 +222,18 @@ int main(int argc, char **argv) {
     } else {
         int count = 0;
         while (running.load()) {
+#if 0
             if (pubTopics.size() > 1) {
                 std::string msg = fmt::format("Message from {} to multiple topics {}", name, count++);
                 stack.Publish(pubTopics, msg);
             } else if (pubTopics.size() == 1) {
                 std::string msg = fmt::format("Message from {} to single topic {}", name, count++);
                 stack.Publish(pubTopics[0], msg);
+            } 
+#endif
+            {
+                std::string msg = fmt::format("Message from {} to conv-stack {}", name, count++);
+                stack.Send(msg);
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(500));

@@ -1,10 +1,14 @@
 #include "NetStack.h"
 #include <fmt/format.h>
 
-NetStack::NetStack(const std::string &name, zmq::context_t &ctx, std::shared_ptr<prometheus::Registry> registry,
-                   const std::vector<std::string> &pubEndpoints, const std::string &subEndpoint, const std::vector<std::string> &subTopics,
+NetStack::NetStack(const std::string &name, 
+                   zmq::context_t &ctx, 
+                   std::shared_ptr<prometheus::Registry> registry,
+                   const std::vector<std::string> &pubEndpoints, 
+                   const std::string &subEndpoint, 
+                   const std::vector<std::string> &subTopics,
                    const std::vector<std::string> &pubTopics, uint16_t listenPort)
-    : ZmqStack(name, ctx, registry, pubEndpoints, subEndpoint, subTopics),
+    : ZmqStack(name, ctx, registry, pubEndpoints, subEndpoint, std::string(), std::string(), subTopics),
       m_server(*this),
       m_pubTopics(pubTopics),
       m_listenPort(listenPort),

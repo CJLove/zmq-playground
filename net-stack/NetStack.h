@@ -5,9 +5,14 @@
 
 class NetStack : public ZmqStack {
 public:
-    NetStack(const std::string &name, zmq::context_t &ctx, std::shared_ptr<prometheus::Registry> registry,
-             const std::vector<std::string> &pubEndpoints, const std::string &subEndpoint, const std::vector<std::string> &subTopics,
-             const std::vector<std::string> &pubTopics, uint16_t listenPort);
+    NetStack(const std::string &name, 
+             zmq::context_t &ctx, 
+             std::shared_ptr<prometheus::Registry> registry,
+             const std::vector<std::string> &pubEndpoints, 
+             const std::string &subEndpoint, 
+             const std::vector<std::string> &subTopics,
+             const std::vector<std::string> &pubTopics,
+             uint16_t listenPort);
 
     virtual ~NetStack();
 

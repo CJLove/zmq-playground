@@ -9,5 +9,8 @@ pub-endpoints:
 sub-endpoint: tcp://localhost:9210
 sub-topics:
   - topic1
-pub-topics:
-  - topic2
+#pub-topics:
+#  - topic2
+
+# If defined, then enable sender socket
+sender-endpoint: tcp://localhost:6005

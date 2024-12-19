@@ -4,6 +4,7 @@ project(common)
 
 set (common_SRC
     Publisher.cpp
+    Sender.cpp
     ZmqStack.cpp
 )
 

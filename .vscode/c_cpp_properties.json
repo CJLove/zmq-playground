@@ -7,7 +7,7 @@
                 "${workspaceFolder}/pub-sub-stack",
                 "/usr/local/include"
             ],
-            "defines": [],
+            "defines": [ "ZMQ_BUILD_DRAFT_API"],
             "intelliSenseMode": "gcc-x64",
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c17",
