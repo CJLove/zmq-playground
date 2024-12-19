@@ -149,6 +149,9 @@ int main(int argc, char **argv) {
     spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
 
     logger->info("XPUB Endpoint {} XSUB Endpoint {}", fmt::join(pubEndpoints, ","), subEndpoint);
+    if (!receiverEndpoint.empty()) {
+        logger->info("Receiver Endpoint {}", receiverEndpoint);
+    }
     for (const auto &topic : conversions) {
         logger->info("    Convert topic {} to topics {}", topic.first, fmt::join(topic.second, " "));
     }

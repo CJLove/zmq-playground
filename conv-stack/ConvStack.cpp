@@ -18,6 +18,7 @@ void ConvStack::onReceivedMessage(std::vector<zmq::message_t> &msgs) {
     if (msgs.size() == 1) {
         topic = "zmqStack-0-ingress";
         msg = msgs[0].to_string();
+        m_logger->info("{} Receiver received message {} ", msg);
     } else {
         topic = msgs[0].to_string();
         msg = msgs[1].to_string();
@@ -26,7 +27,7 @@ void ConvStack::onReceivedMessage(std::vector<zmq::message_t> &msgs) {
     if (f != m_conversionMap.end()) {
         auto topics = m_conversionMap[topic];
         Publish(topics, msgs[1].to_string());
-        m_logger->info("{} receive message on topic {} publishing to {}", m_name, topic, fmt::join(topics, " "));
+        m_logger->info("{} receive message {} on topic {} publishing to {}", m_name, msg, topic, fmt::join(topics, " "));
     }
 }
 
