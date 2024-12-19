@@ -3,7 +3,7 @@
 
 image:
   registry: fir.love.io:3005
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
@@ -12,6 +12,9 @@ healthzPort: 6000
 
 # /metrics port
 metricsPort: 6001
+
+# conv-stack port
+convPort: 6005
 
 # XPUB port
 xpubPort: 8200
@@ -37,6 +40,9 @@ proxyReplicas: 3
 
 # net-stack replicas
 netStackReplicas: 2
+
+# conv-stack replicas
+convStackReplicas: 3
 
 # Base port for net-stack services
 netStackBasePort: 7000

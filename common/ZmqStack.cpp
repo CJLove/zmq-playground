@@ -86,8 +86,8 @@ void ZmqStack::Publish(const std::vector<std::string> &topics, const std::string
 void ZmqStack::Send(const std::string &msg)
 {
     if (m_sender) {
-        m_logger->info("Published message {} to server", msg);
         m_sender->sendMsg(msg);
+        m_logger->info("Published message {} to server", msg);
     }
 }
 

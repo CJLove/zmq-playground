@@ -18,7 +18,7 @@ void ConvStack::onReceivedMessage(std::vector<zmq::message_t> &msgs) {
     if (msgs.size() == 1) {
         topic = "zmqStack-0-ingress";
         msg = msgs[0].to_string();
-        m_logger->info("{} Receiver received message {} ", msg);
+        m_logger->info("{} Receiver received message {} ", m_name, msg);
     } else {
         topic = msgs[0].to_string();
         msg = msgs[1].to_string();

@@ -15,17 +15,18 @@ data:
       - tcp://zmq-xpub-proxy-1:{{ .Values.xpubPort }}{{ if lt 2 (.Values.proxyReplicas | int )}}
       - tcp://zmq-xpub-proxy-2:{{ .Values.xpubPort }}{{ end }}{{ end }}
     sub-endpoint: tcp://zmq-xsub-proxy:{{ .Values.xsubPort }}
+    receiver-endpoint: tcp://*:{{ .Values.convPort }}
     sub-topics:
       - stack-a-ingress
       - stack-b-ingress
-      - zmqStack-0-ingress
-      - zmqStack-1-ingress
-      - zmqStack-2-ingress
-      - zmqStack-3-ingress
-      - net-stack-0-ingress
-      - net-stack-1-ingress
-      - net-stack-2-ingress
-      - net-stack-3-ingress
+      # - zmqStack-0-ingress
+      # - zmqStack-1-ingress
+      # - zmqStack-2-ingress
+      # - zmqStack-3-ingress
+      # - net-stack-0-ingress
+      # - net-stack-1-ingress
+      # - net-stack-2-ingress
+      # - net-stack-3-ingress
     conversions:
       stack-a-ingress: stack-b-egress
       stack-b-ingress: stack-a-egress
@@ -33,7 +34,7 @@ data:
       zmqStack-1-ingress: zmqStack-2-egress
       zmqStack-2-ingress: zmqStack-3-egress
       zmqStack-3-ingress: zmqStack-0-egress
-      net-stack-0-ingress: net-stack-1-egress
-      net-stack-1-ingress: net-stack-0-egress
-      net-stack-2-ingress: net-stack-3-egress
-      net-stack-3-ingress: net-stack-2-egress
+      # net-stack-0-ingress: net-stack-1-egress
+      # net-stack-1-ingress: net-stack-0-egress
+      # net-stack-2-ingress: net-stack-3-egress
+      # net-stack-3-ingress: net-stack-2-egress

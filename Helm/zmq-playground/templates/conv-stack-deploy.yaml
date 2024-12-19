@@ -9,8 +9,9 @@ items:
       namespace: {{ .Release.Namespace }}
       labels:
         app: conv-stack
+        app.kubernetes.io/name: conv-stack
     spec:
-      replicas: 1
+      replicas: {{ .Values.convStackReplicas }}
       selector:
         matchLabels:
           app: conv-stack
@@ -47,3 +48,5 @@ items:
             ports:
               - name: metrics
                 containerPort: {{ .Values.metricsPort }}
+              - name: pull
+                containerPort: {{ .Values.convPort }}

@@ -25,7 +25,7 @@ void Sender::sendMsg(const std::string &appMsg) {
     std::array<zmq::const_buffer, 1> sendMsgs = {
         zmq::const_buffer(appMsg.data(), appMsg.size())
         };
-    auto res = zmq::send_multipart(m_socket, sendMsgs, zmq::send_flags::dontwait);
+    auto res = zmq::send_multipart(m_socket, sendMsgs);
     m_SenderCounters.Increment();
 
     if (!res) {
