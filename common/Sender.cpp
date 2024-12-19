@@ -34,6 +34,9 @@ void Sender::sendMsg(const std::string &appMsg) {
         m_logger->error("Error sending message");
     }
 
+    // If appropriate, force a reconnect of the PUSH socket to allow for more effective
+    // load balancing across the Kubernetes service. Without this the sender app would stay
+    // "pinned" to a specific receiver for the life of the underlying TCP connection.
     if ((++m_count % 10) == 0) {
         m_count = 0;
         try {
