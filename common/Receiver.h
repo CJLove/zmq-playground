@@ -23,7 +23,7 @@ public:
           m_count(0),
           m_target(target),
           m_logger(spdlog::get("zmq")),
-          m_srvCounter(BuildCounter().Name("srv_msgs").Help("Number of received messages").Register(*registry)),
+          m_srvCounter(BuildCounter().Name("recv_msgs").Help("Number of received messages").Register(*registry)),
           m_srvCounters(m_srvCounter.Add({{ "name", "receiver" }}))
     {
 

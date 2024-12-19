@@ -25,6 +25,10 @@ private:
 
     std::shared_ptr<spdlog::logger> m_logger;
 
+    std::string m_endpoint;
+
+    uint32_t m_count;
+
     prometheus::Family<prometheus::Counter> &m_SenderCounter;
     prometheus::Counter& m_SenderCounters;
 

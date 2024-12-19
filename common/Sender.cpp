@@ -6,14 +6,16 @@ Sender::Sender(zmq::context_t &context, std::shared_ptr<prometheus::Registry> re
     : m_context(context), 
       m_socket(m_context, zmq::socket_type::push), 
       m_logger(spdlog::get("zmq")),
-      m_SenderCounter(BuildCounter().Name("Sender_msgs").Help("Number of published messages").Register(*registry)),
+      m_endpoint(endpoint),
+      m_count(0),
+      m_SenderCounter(BuildCounter().Name("sender_msgs").Help("Number of published messages").Register(*registry)),
       m_SenderCounters(m_SenderCounter.Add({{"name", "Sender"}}))
 {
     try {
-        m_logger->info("Sender Connecting to {}", endpoint);
-        m_socket.connect(endpoint);
+        m_logger->info("Sender Connecting to {}", m_endpoint);
+        m_socket.connect(m_endpoint);
     } catch (zmq::error_t &e) {
-        m_logger->error("Error connecting to {}. Error is {}", endpoint, e.what());
+        m_logger->error("Error connecting to {}. Error is {}", m_endpoint, e.what());
     }
 }
 
@@ -30,6 +32,17 @@ void Sender::sendMsg(const std::string &appMsg) {
 
     if (!res) {
         m_logger->error("Error sending message");
+    }
+
+    if ((++m_count % 10) == 0) {
+        m_count = 0;
+        try {
+            m_logger->info("Sender Reonnecting to {}", m_endpoint);
+            m_socket.disconnect(m_endpoint);
+            m_socket.connect(m_endpoint);
+        } catch (zmq::error_t &e) {
+            m_logger->error("Error reconnecting to {}. Error is {}", m_endpoint, e.what());
+        }        
     }
 }
 
