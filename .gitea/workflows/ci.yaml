@@ -24,7 +24,7 @@ jobs:
         uses: https://github.com/addnab/docker-run-action@v3
         with:
           image: fir.love.io:3005/amd64/cross-gcc1511:latest
-          options: --rm --pull=always --volumes-from=${{ env.JOB_CONTAINER_NAME }}
+          options: --rm --pull=always --volumes-from=${{ env.JOB_CONTAINER_NAME }} -v /home/vcpkg:/home/vcpkg
           run: |
             g++ --version
             aarch64-linux-gnu-g++ --version
