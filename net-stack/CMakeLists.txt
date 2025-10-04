@@ -8,7 +8,7 @@ include_directories(
 )
 
 add_executable(net-stack NetStack.cpp NetStackMain.cpp)
-target_link_libraries( net-stack common Threads::Threads yaml-cpp::yaml-cpp httplib::httplib prometheus-cpp::pull ${ZeroMQ_LIBRARY} ${SODIUM_LIB})
+target_link_libraries( net-stack common Threads::Threads fmt::fmt spdlog::spdlog libzmq-static yaml-cpp::yaml-cpp httplib::httplib prometheus-cpp::pull)
 
 # Install targets
 install(TARGETS net-stack DESTINATION net-stack/bin/${BIN_PATH})

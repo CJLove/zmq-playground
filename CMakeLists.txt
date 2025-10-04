@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.17)
 
+
+message( STATUS "CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}" )
+message( STATUS "CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}")
+
 project(zmq-playground)
 
 #---------------------------------------------------------------------------------------
@@ -18,17 +22,13 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
     
 endif()
 
+
 # fmt library dependency
 find_package(fmt CONFIG REQUIRED)
 
 # zmq library dependency for ZeroMQ built from source with CMake support
 find_package(ZeroMQ REQUIRED)
 
-# When cross-compiling for aarch64 there is an issue finding libsodium.so needed by libzmq.so
-set (SODIUM_LIB "")
-if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
-    set (SODIUM_LIB "/home/aarch64/usr/lib64/libsodium.so")
-endif()
 
 # spdlog library dependency
 find_package(spdlog CONFIG REQUIRED)
@@ -37,7 +37,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(prometheus-cpp CONFIG REQUIRED)
 
 # yaml-cpp library dependency
-find_package(yaml-cpp 0.6.2 REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 # httplib library dependency
 find_package(httplib REQUIRED)

@@ -8,7 +8,7 @@ include_directories(
 )
 
 add_executable(conv-stack ConvStack.cpp ConvStackMain.cpp)
-target_link_libraries( conv-stack common Threads::Threads yaml-cpp::yaml-cpp httplib::httplib prometheus-cpp::pull ${ZeroMQ_LIBRARY} ${SODIUM_LIB})
+target_link_libraries( conv-stack common Threads::Threads fmt::fmt spdlog::spdlog libzmq-static yaml-cpp::yaml-cpp httplib::httplib prometheus-cpp::pull)
 
 # Install targets
 install(TARGETS conv-stack DESTINATION conv-stack/bin/${BIN_PATH})

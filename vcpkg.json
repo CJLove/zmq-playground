@@ -1,0 +1,21 @@
+{
+    "dependencies": [
+        "gtest",
+        "fmt",
+        "spdlog",
+        "prometheus-cpp",
+        {
+            "name": "cpp-httplib",
+            "default-features": false
+        },
+        "yaml-cpp",
+        "cppzmq"
+    ],
+    "builtin-baseline": "120deac3062162151622ca4860575a33844ba10b",
+    "overrides": [
+        {
+            "name": "cppzmq",
+            "version": "4.10.0"
+        }
+    ]
+}

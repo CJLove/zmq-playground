@@ -11,7 +11,7 @@ include_directories(
 )
 
 add_executable(inproc-stack ../zmq-proxy/Proxy.cpp ../conv-stack/ConvStack.cpp ../net-stack/NetStack.cpp InprocStackMain.cpp)
-target_link_libraries( inproc-stack common Threads::Threads prometheus-cpp::pull ${ZeroMQ_LIBRARY} ${SODIUM_LIB})
+target_link_libraries( inproc-stack common Threads::Threads fmt::fmt spdlog::spdlog libzmq-static prometheus-cpp::pull)
 
 # Install targets
 install(TARGETS inproc-stack DESTINATION inproc-stack/bin/${BIN_PATH})
